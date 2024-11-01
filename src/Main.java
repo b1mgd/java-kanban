@@ -1,10 +1,12 @@
+import controllers.TaskManager;
+import model.*;
+
 public class Main {
     public static void main(String[] args) {
         TaskManager manager = new TaskManager();
 
         Task task1 = new Task("Закупка материалов", "Закупка необходимых материалов для проекта");
         Task task2 = new Task("Создание плана проекта", "Создать план и распределить задачи");
-
         manager.createTask(task1);
         manager.createTask(task2);
 
@@ -27,50 +29,40 @@ public class Main {
 
         System.out.println("\nВсе задачи после добавления эпиков и подзадач:");
         System.out.println(manager.getAllTasks());
+        System.out.println(manager.getAllEpics());
+        System.out.println(manager.getAllSubtasks());
 
-        System.out.println("\nПодзадачи для эпика 'Организация переезда':");
-        System.out.println(manager.getSubtasksOfEpic(epic1.getId()));
-
-        manager.updateStatus(task1.getId(), TaskStatus.IN_PROGRESS);
-        manager.updateStatus(subtask1.getId(), TaskStatus.IN_PROGRESS);
-        manager.updateStatus(subtask2.getId(), TaskStatus.DONE);
-
-        System.out.println("\nСтатус эпика после обновления статусов подзадач:");
-        System.out.println(manager.getTaskById(epic1.getId()));
-
-        manager.updateStatus(subtask1.getId(), TaskStatus.DONE);
-        System.out.println("\nСтатус эпика после завершения всех подзадач:");
-        System.out.println(manager.getTaskById(epic1.getId()));
-
-        // Обновление обычной задачи
         Task updatedTask = new Task("Закупка материалов - обновлено", "Закупка материалов для нового проекта");
         updatedTask.setStatus(TaskStatus.IN_PROGRESS);
-        manager.updateTask(updatedTask, task1.getId());
         System.out.println("Обновленная задача:");
         System.out.println(manager.getTaskById(task1.getId()));
 
         Epic updatedEpic = new Epic("Организация переезда - обновлено", "Переезд с обновленными задачами");
         updatedEpic.setStatus(TaskStatus.IN_PROGRESS);
-        manager.updateTask(updatedEpic, epic1.getId());
         System.out.println("Обновленный эпик:");
         System.out.println(manager.getTaskById(epic1.getId()));
 
         Subtask updatedSubtask = new Subtask("Упаковка вещей - обновлено", "Упаковка с учетом дополнительного груза", epic1.getId());
         updatedSubtask.setStatus(TaskStatus.DONE);
-        manager.updateTask(updatedSubtask, subtask1.getId());
         System.out.println("Обновленная подзадача:");
         System.out.println(manager.getTaskById(subtask1.getId()));
 
         System.out.println("\nУдаление задачи и эпика:");
-        manager.removeTaskById(task1.getId());
-        manager.removeTaskById(epic1.getId());
+        manager.deleteTaskById(task1.getId());
+        manager.deleteTaskById(epic1.getId());
         System.out.println("Все задачи после удаления:");
         System.out.println(manager.getAllTasks());
+        System.out.println(manager.getAllEpics());
+        System.out.println(manager.getAllSubtasks());
 
         System.out.println("\nУдаление всех задач:");
-        manager.removeAllTasks();
+        manager.deleteTasks();
+        manager.deleteEpics();
+        manager.deleteSubtasks();
         System.out.println("Все задачи после полного удаления:");
         System.out.println(manager.getAllTasks());
+        System.out.println(manager.getAllEpics());
+        System.out.println(manager.getAllSubtasks());
     }
 }
 

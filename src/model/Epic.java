@@ -1,3 +1,5 @@
+package model;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -26,7 +28,10 @@ public class Epic extends Task {
         boolean areSubtasksDone = true;
         for (Integer id : subTaskIds) {
             Subtask subtask = subtaskMap.get(id);
-            if (subtask.getStatus() != TaskStatus.NEW) {
+            if (subtask.getStatus() == TaskStatus.IN_PROGRESS) {
+                setStatus(TaskStatus.IN_PROGRESS);
+                return;
+            } else if (subtask.getStatus() != TaskStatus.NEW) {
                 areSubtasksNew = false;
             }
             if (subtask.getStatus() != TaskStatus.DONE) {
