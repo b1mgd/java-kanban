@@ -32,18 +32,25 @@ public class Main {
         System.out.println(manager.getAllEpics());
         System.out.println(manager.getAllSubtasks());
 
+        System.out.println("\nПроверка подзадач для эпика 'Организация переезда':");
+        System.out.println("Подзадачи эпика:");
+        System.out.println(manager.getSubtasksOfEpic(epic1.getId()));
+
         Task updatedTask = new Task("Закупка материалов - обновлено", "Закупка материалов для нового проекта");
         updatedTask.setStatus(TaskStatus.IN_PROGRESS);
+        manager.updateTask(updatedTask, task1.getId());
         System.out.println("Обновленная задача:");
         System.out.println(manager.getTaskById(task1.getId()));
 
         Epic updatedEpic = new Epic("Организация переезда - обновлено", "Переезд с обновленными задачами");
         updatedEpic.setStatus(TaskStatus.IN_PROGRESS);
+        manager.updateTask(updatedEpic, epic1.getId());
         System.out.println("Обновленный эпик:");
         System.out.println(manager.getTaskById(epic1.getId()));
 
         Subtask updatedSubtask = new Subtask("Упаковка вещей - обновлено", "Упаковка с учетом дополнительного груза", epic1.getId());
         updatedSubtask.setStatus(TaskStatus.DONE);
+        manager.updateTask(updatedSubtask, subtask1.getId());
         System.out.println("Обновленная подзадача:");
         System.out.println(manager.getTaskById(subtask1.getId()));
 

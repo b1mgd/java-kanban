@@ -95,4 +95,23 @@ public class TaskManager {
             }
         }
     }
+
+    public void updateTask(Task updatedTask, int id) {
+        if (taskMap.containsKey(id)) {
+            Task task = taskMap.get(id);
+            task.setName(updatedTask.getName());
+            task.setDescription(updatedTask.getDescription());
+            task.setStatus(updatedTask.getStatus());
+        } else if (epicMap.containsKey(id)) {
+            Epic epic = epicMap.get(id);
+            epic.setName(updatedTask.getName());
+            epic.setDescription(updatedTask.getDescription());
+            epic.setStatus(updatedTask.getStatus());
+        } else if (subtaskMap.containsKey(id)) {
+            Subtask subtask = subtaskMap.get(id);
+            subtask.setName(updatedTask.getName());
+            subtask.setDescription(updatedTask.getDescription());
+            subtask.setStatus(updatedTask.getStatus());
+        }
+    }
 }
