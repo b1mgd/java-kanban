@@ -1,117 +1,36 @@
 package controllers;
 
-import model.*;
-import java.util.HashMap;
+import model.Epic;
+import model.Subtask;
+import model.Task;
+
 import java.util.ArrayList;
 
-public class TaskManager {
-    private HashMap<Integer, Task> taskMap = new HashMap<>();
-    private HashMap<Integer, Epic> epicMap = new HashMap<>();
-    private HashMap<Integer, Subtask> subtaskMap = new HashMap<>();
-    private int idCounter = 1;
+public interface TaskManager {
 
-    public void createTask(Task task) {
-        task.setId(idCounter++);
-        taskMap.put(task.getId(), task);
-    }
+    void createTask(Task task);
 
-    public void createEpic(Epic epic) {
-        epic.setId(idCounter++);
-        epicMap.put(epic.getId(), epic);
-    }
+    void createEpic(Epic epic);
 
-    public void createSubtask(Subtask subtask) {
-        int epicId = subtask.getEpicId();
-        if (epicMap.containsKey(epicId)) {
-            subtask.setId(idCounter++);
-            subtaskMap.put(subtask.getId(), subtask);
-            Epic epic = epicMap.get(epicId);
-            epic.addSubtaskId(subtask.getId());
-            epic.updateStatus(subtaskMap);
-        }
-    }
+    void createSubtask(Subtask subtask);
 
-     public ArrayList<Task> getAllTasks() {
-        return new ArrayList<>(taskMap.values());
-     }
+    ArrayList<Task> getAllTasks();
 
-     public ArrayList<Epic> getAllEpics() {
-        return new ArrayList<>(epicMap.values());
-     }
+    ArrayList<Epic> getAllEpics();
 
-     public ArrayList<Subtask> getAllSubtasks() {
-        return new ArrayList<>(subtaskMap.values());
-     }
+    ArrayList<Subtask> getAllSubtasks();
 
-    public ArrayList<Subtask> getSubtasksOfEpic(int epicId) {
-        if (!epicMap.containsKey(epicId)) {
-            return new ArrayList<>();
-        }
-        ArrayList<Subtask> subtasks = new ArrayList<>();
-        for (Integer id : epicMap.get(epicId).getSubTaskId()) {
-            subtasks.add(subtaskMap.get(id));
-        }
-        return subtasks;
+    ArrayList<Subtask> getSubtasksOfEpic(int epicId);
 
-    }
+    void deleteTasks();
 
-    public void deleteTasks() {
-        taskMap.clear();
-    }
+    void deleteEpics();
 
-    public void deleteEpics() {
-        epicMap.clear();
-        subtaskMap.clear();
-    }
+    void deleteSubtasks();
 
-    public void deleteSubtasks() {
-        for (Epic epic : epicMap.values()) {
-            epic.getSubTaskId().clear();
-            epic.updateStatus(subtaskMap);
-        }
-        subtaskMap.clear();
-    }
+    Task getTaskById(int id);
 
-    public Task getTaskById(int id) {
-        if (taskMap.containsKey(id)) return taskMap.get(id);
-        else if (epicMap.containsKey(id)) return epicMap.get(id);
-        else return subtaskMap.get(id);
-    }
+    void deleteTaskById(int id);
 
-    public void deleteTaskById(int id) {
-        if (taskMap.remove(id) == null) {
-            if (epicMap.containsKey(id)) {
-                for (Integer subtaskId : epicMap.get(id).getSubTaskId()) {
-                    subtaskMap.remove(subtaskId);
-                }
-                epicMap.remove(id);
-            } else {
-                Subtask subtask = subtaskMap.remove(id);
-                if (subtask != null) {
-                    Epic epic = epicMap.get(subtask.getEpicId());
-                    epic.getSubTaskId().remove((Integer) id);
-                    epic.updateStatus(subtaskMap);
-                }
-            }
-        }
-    }
-
-    public void updateTask(Task updatedTask, int id) {
-        if (taskMap.containsKey(id)) {
-            Task task = taskMap.get(id);
-            task.setName(updatedTask.getName());
-            task.setDescription(updatedTask.getDescription());
-            task.setStatus(updatedTask.getStatus());
-        } else if (epicMap.containsKey(id)) {
-            Epic epic = epicMap.get(id);
-            epic.setName(updatedTask.getName());
-            epic.setDescription(updatedTask.getDescription());
-            epic.setStatus(updatedTask.getStatus());
-        } else if (subtaskMap.containsKey(id)) {
-            Subtask subtask = subtaskMap.get(id);
-            subtask.setName(updatedTask.getName());
-            subtask.setDescription(updatedTask.getDescription());
-            subtask.setStatus(updatedTask.getStatus());
-        }
-    }
+    void updateTask(Task updatedTask, int id);
 }
