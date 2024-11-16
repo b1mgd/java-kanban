@@ -1,7 +1,7 @@
-package test;
+package test.tracker.model;
 
-import controllers.*;
-import model.Task;
+import tracker.controllers.*;
+import tracker.model.Task;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -10,14 +10,17 @@ import static org.junit.jupiter.api.Assertions.*;
 class TaskTest {
 
     TaskManager taskManager;
+    HistoryManager historyManager;
 
     @BeforeEach
     void setUp() {
         taskManager = Managers.getDefault();
+        historyManager = Managers.getDefaultHistory();
+        taskManager.setHistoryManager(historyManager);
+        historyManager.setTaskManager(taskManager);
     }
 
     @Test
-    // ТЗ: равенство экземпляров Task при равенстве ID
     void tasksAreEqualIfIdsAreEqual() {
         Task task = new Task("Закупка материалов", "Закупка необходимых материалов для проекта");
         taskManager.createTask(task);

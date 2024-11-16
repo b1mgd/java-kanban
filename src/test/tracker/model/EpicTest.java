@@ -1,7 +1,7 @@
-package test;
+package test.tracker.model;
 
-import controllers.*;
-import model.*;
+import tracker.controllers.*;
+import tracker.model.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -10,18 +10,23 @@ import static org.junit.jupiter.api.Assertions.*;
 class EpicTest {
 
     TaskManager taskManager;
+    HistoryManager historyManager;
     Epic epic;
 
     @BeforeEach
     void setUp() {
         taskManager = Managers.getDefault();
+        historyManager = Managers.getDefaultHistory();
+        taskManager.setHistoryManager(historyManager);
+        historyManager.setTaskManager(taskManager);
+
         taskManager.deleteEpics();
+
         epic = new Epic("Организация переезда", "Переезд в новую квартиру");
         taskManager.createEpic(epic);
     }
 
     @Test
-    // ТЗ: равенство экземпляров наследников Task при равенстве их ID
     void epicsAreEqualIfIdsAreEqual() {
         Epic epic1 = (Epic) taskManager.getTaskById(epic.getId());
         assertEquals(epic.getId(), epic1.getId(), "ID не равны");

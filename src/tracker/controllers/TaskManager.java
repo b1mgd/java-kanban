@@ -1,12 +1,17 @@
-package controllers;
+package tracker.controllers;
 
-import model.Epic;
-import model.Subtask;
-import model.Task;
+import tracker.model.Epic;
+import tracker.model.Subtask;
+import tracker.model.Task;
 
 import java.util.ArrayList;
 
 public interface TaskManager {
+
+    // Аналогично пришлось дополнить, чтобы связать объекты менеджеров
+    void setHistoryManager(HistoryManager historyManager);
+
+    HistoryManager getHistoryManager();
 
     void createTask(Task task);
 
@@ -33,4 +38,6 @@ public interface TaskManager {
     void deleteTaskById(int id);
 
     void updateTask(Task updatedTask, int id);
+
+    ArrayList<Task> getHistory();
 }

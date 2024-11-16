@@ -1,7 +1,7 @@
-package test;
+package test.tracker.model;
 
-import controllers.*;
-import model.*;
+import tracker.controllers.*;
+import tracker.model.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -10,13 +10,19 @@ import static org.junit.jupiter.api.Assertions.*;
 class SubtaskTest {
 
     TaskManager taskManager;
+    HistoryManager historyManager;
     Epic epic;
     Subtask subtask;
 
     @BeforeEach
     void setUp() {
         taskManager = Managers.getDefault();
+        historyManager = Managers.getDefaultHistory();
+        taskManager.setHistoryManager(historyManager);
+        historyManager.setTaskManager(taskManager);
+
         taskManager.deleteEpics();
+
         epic = new Epic("Организация переезда", "Переезд в новую квартиру");
         taskManager.createEpic(epic);
         subtask = new Subtask("Упаковка вещей", "Упаковать вещи в коробки", epic.getId());
@@ -25,7 +31,6 @@ class SubtaskTest {
     }
 
     @Test
-    // ТЗ: равенство экземпляров наследников Task при равенстве их ID
     void subtasksAreEqualIfIdsAreEqual() {
         Subtask subtask1 = (Subtask) taskManager.getTaskById(subtask.getId());
         assertEquals(subtask.getId(), subtask1.getId(), "ID не равны");
@@ -33,8 +38,6 @@ class SubtaskTest {
     }
 
     @Test
-    // ТЗ: Subtask нельзя сделать своим же эпиком (ID)
-    // ТЗ: задачи с заданным ID не конфликтуют внутри менеджера
     void shouldNotAllowSubtaskToAddItselfAsEpic() {
         Subtask invalidSubtask = new Subtask("Неверная подзадача",
                 "Попытка сделать подзадачу своим эпиком", epic.getId());

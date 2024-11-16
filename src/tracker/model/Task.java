@@ -1,4 +1,4 @@
-package model;
+package tracker.model;
 
 import java.util.Objects;
 

@@ -1,9 +1,10 @@
-package model;
+package tracker.model;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Epic extends Task {
+
     private ArrayList<Integer> subTaskIds;
 
     public Epic(String name, String description) {

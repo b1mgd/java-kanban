@@ -1,7 +1,7 @@
-package test;
+package test.tracker.controllers;
 
-import controllers.*;
-import model.Task;
+import tracker.controllers.*;
+import tracker.model.Task;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -9,22 +9,23 @@ import static org.junit.jupiter.api.Assertions.*;
 class ManagersTest {
 
     @Test
-    // ТЗ: Managers всегда возвращает которые к работе экземпляры менеджеров
     void shouldReturnManagersReadyToWork() {
         TaskManager taskManager = Managers.getDefault();
+        HistoryManager historyManager = Managers.getDefaultHistory();
+        taskManager.setHistoryManager(historyManager);
+        historyManager.setTaskManager(taskManager);
+
         assertNotNull(taskManager);
         assertTrue(taskManager instanceof InMemoryTaskManager);
 
         Task task = new Task("Задача", "Описание задачи");
-
         taskManager.createTask(task);
         assertFalse(taskManager.getAllTasks().isEmpty());
 
-        HistoryManager historyManager = Managers.getDefaultHistory();
         assertNotNull(historyManager);
-        assertTrue(historyManager instanceof InMemoryHistoryManager);
-        historyManager.add(task);
-        assertFalse(historyManager.getHistory().isEmpty());
-    }
+        assertEquals(InMemoryHistoryManager.class, historyManager.getClass());
 
+        taskManager.getTaskById(task.getId());
+        assertFalse(taskManager.getHistory().isEmpty());
+    }
 }

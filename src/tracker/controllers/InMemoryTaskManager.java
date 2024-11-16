@@ -1,14 +1,26 @@
-package controllers;
+package tracker.controllers;
 
-import model.*;
+import tracker.model.*;
 import java.util.HashMap;
 import java.util.ArrayList;
 
 public class InMemoryTaskManager implements TaskManager {
+
+    private HistoryManager historyManager;
     private HashMap<Integer, Task> taskMap = new HashMap<>();
     private HashMap<Integer, Epic> epicMap = new HashMap<>();
     private HashMap<Integer, Subtask> subtaskMap = new HashMap<>();
     private int idCounter = 1;
+
+    @Override
+    public void setHistoryManager(HistoryManager historyManager) {
+        this.historyManager = historyManager;
+    }
+
+    @Override
+    public HistoryManager getHistoryManager() {
+        return historyManager;
+    }
 
     @Override
     public void createTask(Task task) {
@@ -89,7 +101,7 @@ public class InMemoryTaskManager implements TaskManager {
         if (taskMap.containsKey(id)) task = taskMap.get(id);
         else if (epicMap.containsKey(id)) task = epicMap.get(id);
         else task = subtaskMap.get(id);
-        if (task != null) Managers.getDefaultHistory().add(task);
+        if (task != null) historyManager.add(task);;
         return task;
     }
 
@@ -130,5 +142,10 @@ public class InMemoryTaskManager implements TaskManager {
             subtask.setDescription(updatedTask.getDescription());
             subtask.setStatus(updatedTask.getStatus());
         }
+    }
+
+    @Override
+    public ArrayList<Task> getHistory() {
+        return new ArrayList<>(historyManager.getHistoryList());
     }
 }

@@ -1,7 +1,7 @@
-package test;
+package test.tracker.controllers;
 
-import model.*;
-import controllers.*;
+import tracker.model.*;
+import tracker.controllers.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
@@ -11,6 +11,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class InMemoryTaskManagerTest {
 
     TaskManager taskManager;
+    HistoryManager historyManager;
     Task task1, task2;
     Epic epic;
     Subtask subtask1, subtask2;
@@ -20,11 +21,16 @@ class InMemoryTaskManagerTest {
     ArrayList<Subtask> subtasksOfEpic;
 
     @BeforeEach
-    // ТЗ: добавляются задачи разного типа
     void setUp() {
         taskManager = Managers.getDefault();
+        historyManager = Managers.getDefaultHistory();
+
+        taskManager.setHistoryManager(historyManager);
+        historyManager.setTaskManager(taskManager);
+
         taskManager.deleteTasks();
         taskManager.deleteEpics();
+
         task1 = new Task("Закупка материалов", "Закупка необходимых материалов для проекта");
         taskManager.createTask(task1);
         task2 = new Task("Создание плана проекта", "Создать план и распределить задачи");
@@ -35,6 +41,7 @@ class InMemoryTaskManagerTest {
         taskManager.createSubtask(subtask1);
         subtask2 = new Subtask("Заказ транспорта", "Заказать грузовое такси", epic.getId());
         taskManager.createSubtask(subtask2);
+
         tasks = taskManager.getAllTasks();
         epics = taskManager.getAllEpics();
         subtasks = taskManager.getAllSubtasks();
@@ -42,7 +49,6 @@ class InMemoryTaskManagerTest {
     }
 
     @Test
-    // ТЗ: задачи ищутся по ID
     void createNewTask() {
         Task savedTask = taskManager.getTaskById(task1.getId());
 
@@ -132,7 +138,6 @@ class InMemoryTaskManagerTest {
     }
 
     @Test
-    // ТЗ: созданная задача в менеджере неизменна по всем полям
     void addedToManagerTaskShouldBeTheSame() {
         assertEquals(task1.getId(), taskManager.getTaskById(task1.getId()).getId());
         assertEquals(task1.getStatus(), taskManager.getTaskById(task1.getId()).getStatus());
