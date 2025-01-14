@@ -7,8 +7,6 @@ public interface HistoryManager {
 
     void setTaskManager(TaskManager taskManager);
 
-    TaskManager getTaskManager();
-
     List<Task> getHistory();
 
     void add(Task task);

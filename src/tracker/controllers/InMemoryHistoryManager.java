@@ -28,7 +28,7 @@ public class InMemoryHistoryManager implements HistoryManager {
         taskMap = new HashMap<>();
     }
 
-    public void linkLast(Task task) {
+    private void linkLast(Task task) {
         if (taskMap.containsKey(task.getId())) {
             remove(task.getId());
         }
@@ -47,16 +47,6 @@ public class InMemoryHistoryManager implements HistoryManager {
         this.taskManager = taskManager;
     }
 
-    @Override
-    public TaskManager getTaskManager() {
-        return taskManager;
-    }
-
-    /*
-По условию спринта требуется задекларировать в интерфейсе HistoryManager метод getTasks(),
-при этом в классе InMemoryHistoryManager необходимо реализовать метод getHistory(), дублирующий функционал метода
-getTasks(). В этой связи привожу только getHistory()
- */
     @Override
     public List<Task> getHistory() {
         List<Task> taskList = new ArrayList<>();
@@ -77,7 +67,7 @@ getTasks(). В этой связи привожу только getHistory()
         linkLast(task);
     }
 
-    public void removeNode(Node node) {
+    private void removeNode(Node node) {
         if (node.prev != null) {
             node.prev.next = node.next;
         } else {

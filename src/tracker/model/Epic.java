@@ -25,26 +25,28 @@ public class Epic extends Task {
             setStatus(TaskStatus.NEW);
             return;
         }
-        boolean areSubtasksNew = true;
-        boolean areSubtasksDone = true;
+        boolean areAllNew = true;
+        boolean areAllDone = true;
+
         for (Integer id : subTaskIds) {
             Subtask subtask = subtaskMap.get(id);
-            if (subtask.getStatus() == TaskStatus.IN_PROGRESS) {
-                setStatus(TaskStatus.IN_PROGRESS);
-                return;
-            } else if (subtask.getStatus() != TaskStatus.NEW) {
-                areSubtasksNew = false;
+            if (subtask == null) {
+                continue;
             }
-            if (subtask.getStatus() != TaskStatus.DONE) {
-                areSubtasksDone = false;
+            switch (subtask.getStatus()) {
+                case IN_PROGRESS:
+                    setStatus(TaskStatus.IN_PROGRESS);
+                    return;
+
+                case NEW:
+                    areAllDone = false;
+                    break;
+
+                case DONE:
+                    areAllNew = false;
+                    break;
             }
-        }
-        if (areSubtasksNew) {
-            setStatus(TaskStatus.NEW);
-        } else if (areSubtasksDone) {
-            setStatus(TaskStatus.DONE);
-        } else {
-            setStatus(TaskStatus.IN_PROGRESS);
+            setStatus(areAllNew ? TaskStatus.NEW : areAllDone ? TaskStatus.DONE : TaskStatus.IN_PROGRESS);
         }
     }
 
@@ -58,6 +60,5 @@ public class Epic extends Task {
                 ", subTaskIds=" + getSubTaskId() +
                 "}";
     }
+
 }
-
-

@@ -72,7 +72,6 @@ class InMemoryHistoryManagerTest {
         taskManager.getTaskById(task1.getId());
 
         List<Task> history = historyManager.getHistory();
-        System.out.println("history = " + history);
 
         assertEquals(2, history.size(), "История должна содержать 2 задачи.");
         assertEquals(history.getFirst().getId(), 2, "Задача 2 должна быть в истории первой");

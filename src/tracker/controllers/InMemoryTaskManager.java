@@ -40,10 +40,10 @@ public class InMemoryTaskManager implements TaskManager {
         if (epicId == subtask.getId()) {
             return;
         }
+        Epic epic = epicMap.get(epicId);
         if (epicMap.containsKey(epicId)) {
             subtask.setId(idCounter++);
             subtaskMap.put(subtask.getId(), subtask);
-            Epic epic = epicMap.get(epicId);
             epic.addSubtaskId(subtask.getId());
             epic.updateStatus(subtaskMap);
         }
@@ -125,13 +125,19 @@ public class InMemoryTaskManager implements TaskManager {
         if (taskMap.remove(id) != null) {
             historyManager.remove(id);
         } else if (epicMap.containsKey(id)) {
-            for (Integer subtaskId : epicMap.get(id).getSubTaskId()) {
+            Epic epic = epicMap.remove(id);
+            for (Integer subtaskId : epic.getSubTaskId()) {
                 subtaskMap.remove(subtaskId);
             }
-            epicMap.remove(id);
             historyManager.remove(id);
-        } else if (subtaskMap.remove(id) != null) {
+        } else if (subtaskMap.containsKey(id)) {
+            Subtask subtask = subtaskMap.remove(id);
             historyManager.remove(id);
+            Epic epic = epicMap.get(subtask.getEpicId());
+            if (epic != null) {
+                epic.getSubTaskId().remove(id);
+                epic.updateStatus(subtaskMap);
+            }
         }
     }
 
@@ -147,14 +153,16 @@ public class InMemoryTaskManager implements TaskManager {
             Epic epic = epicMap.get(id);
             epic.setName(updatedTask.getName());
             epic.setDescription(updatedTask.getDescription());
-            epic.setStatus(updatedTask.getStatus());
-            historyManager.add(epic);
         } else if (subtaskMap.containsKey(id)) {
             Subtask subtask = subtaskMap.get(id);
             subtask.setName(updatedTask.getName());
             subtask.setDescription(updatedTask.getDescription());
             subtask.setStatus(updatedTask.getStatus());
-            historyManager.add(subtask);
+            Epic epic = epicMap.get(subtask.getEpicId());
+            if (epic != null) {
+                epic.updateStatus(subtaskMap);
+                historyManager.add(subtask);
+            }
         }
     }
 
@@ -162,5 +170,4 @@ public class InMemoryTaskManager implements TaskManager {
     public ArrayList<Task> getHistory() {
         return new ArrayList<>(historyManager.getHistory());
     }
-
 }
