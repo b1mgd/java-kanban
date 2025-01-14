@@ -1,4 +1,4 @@
-package test.tracker.controllers;
+package test.java.controllers;
 
 import tracker.model.*;
 import tracker.controllers.*;

@@ -1,4 +1,4 @@
-package test.tracker.model;
+package test.java.model;
 
 import tracker.controllers.*;
 import tracker.model.*;
@@ -7,12 +7,11 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class SubtaskTest {
+class EpicTest {
 
     TaskManager taskManager;
     HistoryManager historyManager;
     Epic epic;
-    Subtask subtask;
 
     @BeforeEach
     void setUp() {
@@ -25,25 +24,22 @@ class SubtaskTest {
 
         epic = new Epic("Организация переезда", "Переезд в новую квартиру");
         taskManager.createEpic(epic);
-        subtask = new Subtask("Упаковка вещей", "Упаковать вещи в коробки", epic.getId());
-        taskManager.createSubtask(subtask);
-
     }
 
     @Test
-    void subtasksAreEqualIfIdsAreEqual() {
-        Subtask subtask1 = (Subtask) taskManager.getTaskById(subtask.getId());
-        assertEquals(subtask.getId(), subtask1.getId(), "ID не равны");
-        assertEquals(subtask, subtask1, "Экземпляры не равны");
+    void epicsAreEqualIfIdsAreEqual() {
+        Epic epic1 = (Epic) taskManager.getTaskById(epic.getId());
+        assertEquals(epic.getId(), epic1.getId(), "ID не равны");
+        assertEquals(epic, epic1, "Экземпляры не равны");
     }
 
     @Test
-    void shouldNotAllowSubtaskToAddItselfAsEpic() {
-        Subtask invalidSubtask = new Subtask("Неверная подзадача",
-                "Попытка сделать подзадачу своим эпиком", epic.getId());
-        invalidSubtask.setId(epic.getId());
+    void shouldNotAllowEpicToAddItselfAsSubtask() {
+        Subtask invalidSubtask = new Subtask("Некорректная подзадача",
+                "Эпик не может быть своей подзадачей", epic.getId());
         taskManager.createSubtask(invalidSubtask);
-        assertFalse(taskManager.getAllSubtasks().contains(invalidSubtask),
+        assertFalse(epic.getSubTaskId().contains(epic.getId()),
                 "ID подзадачи эпика не может совпадать с ID эпика");
     }
+
 }

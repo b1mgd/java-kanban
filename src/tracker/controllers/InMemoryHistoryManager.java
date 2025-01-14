@@ -29,6 +29,9 @@ public class InMemoryHistoryManager implements HistoryManager {
     }
 
     public void linkLast(Task task) {
+        if (taskMap.containsKey(task.getId())) {
+            remove(task.getId());
+        }
         Node newNode = new Node(tail, task, null);
         if (tail == null) {
             head = newNode;
@@ -91,8 +94,9 @@ getTasks(). В этой связи привожу только getHistory()
     @Override
     public void remove(int id) {
         Node node = taskMap.get(id);
-        if (node == null) return;
-        removeNode(node);
-        taskMap.remove(id);
+        if (node != null) {
+            removeNode(node);
+            taskMap.remove(id);
+        }
     }
 }
