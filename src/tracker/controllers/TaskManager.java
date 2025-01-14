@@ -8,7 +8,6 @@ import java.util.ArrayList;
 
 public interface TaskManager {
 
-    // Аналогично пришлось дополнить, чтобы связать объекты менеджеров
     void setHistoryManager(HistoryManager historyManager);
 
     HistoryManager getHistoryManager();

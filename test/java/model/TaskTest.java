@@ -1,33 +1,31 @@
-package test.tracker.controllers;
+package test.java.model;
 
 import tracker.controllers.*;
+import tracker.model.Task;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import tracker.model.*;
-import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class InMemoryHistoryManagerTest {
+class TaskTest {
 
-    HistoryManager historyManager;
     TaskManager taskManager;
+    HistoryManager historyManager;
 
     @BeforeEach
     void setUp() {
-        historyManager = Managers.getDefaultHistory();
         taskManager = Managers.getDefault();
+        historyManager = Managers.getDefaultHistory();
         taskManager.setHistoryManager(historyManager);
         historyManager.setTaskManager(taskManager);
     }
 
     @Test
-    void add() {
+    void tasksAreEqualIfIdsAreEqual() {
         Task task = new Task("Закупка материалов", "Закупка необходимых материалов для проекта");
-        historyManager.add(task);
-        ArrayList<Task> history = new ArrayList<>(historyManager.getHistoryList());
-        assertNotNull(history, "История пустая.");
-        assertEquals(1, history.size(), "История пустая.");
-        assertEquals(task, history.getFirst());
+        taskManager.createTask(task);
+        Task task1 = taskManager.getTaskById(task.getId());
+        assertEquals(task.getId(), task1.getId(), "ID не равны");
+        assertEquals(task, task1, "Метод equals переопределен некорректно");
     }
 }
