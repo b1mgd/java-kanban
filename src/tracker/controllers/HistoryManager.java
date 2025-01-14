@@ -1,18 +1,17 @@
 package tracker.controllers;
 
 import tracker.model.Task;
-
-import java.util.Deque;
+import java.util.List;
 
 public interface HistoryManager {
 
-    // Пришла в голову только такая идея, как связать между собой двух менеджеров в случае,
-    // если не используем Singletone. Можно ли как-то лучше?
     void setTaskManager(TaskManager taskManager);
 
     TaskManager getTaskManager();
 
-    Deque<Task> getHistoryList();
+    List<Task> getHistory();
 
     void add(Task task);
+
+    void remove(int id);
 }
