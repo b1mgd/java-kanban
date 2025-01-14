@@ -1,4 +1,4 @@
-package test.controllers;
+package test;
 
 import tracker.model.*;
 import tracker.controllers.*;

@@ -2,29 +2,7 @@ name: Java Tests
 
 on:
   pull_request:
-    branches:
-      - main
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Set up JDK
-        uses: actions/setup-java@v2
-        with:
-          java-version: '11'
-
-      - name: Build with Maven
-        run: mvn clean install
-
-      - name: Run unit tests
-        run: mvn test
-
-      - name: Find Java tests
-        run: |
-          find ./src/test/controllers ./src/test/model -type f -name "*.java" > tests.txt
-          cat tests.txt
+    uses: yandex-praktikum/java-kanban/.github/workflows/api-tests.yml@ci

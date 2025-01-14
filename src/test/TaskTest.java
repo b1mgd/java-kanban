@@ -1,4 +1,4 @@
-package test.model;
+package test;
 
 import tracker.controllers.*;
 import tracker.model.Task;
