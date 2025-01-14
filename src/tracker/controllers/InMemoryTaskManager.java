@@ -37,7 +37,9 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void createSubtask(Subtask subtask) {
         int epicId = subtask.getEpicId();
-        if (epicId == subtask.getId()) {return;}
+        if (epicId == subtask.getId()) {
+            return;
+        }
         if (epicMap.containsKey(epicId)) {
             subtask.setId(idCounter++);
             subtaskMap.put(subtask.getId(), subtask);
