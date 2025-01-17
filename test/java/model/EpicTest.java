@@ -41,5 +41,4 @@ class EpicTest {
         assertFalse(epic.getSubTaskId().contains(epic.getId()),
                 "ID подзадачи эпика не может совпадать с ID эпика");
     }
-
 }

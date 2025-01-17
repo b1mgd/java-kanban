@@ -1,6 +1,7 @@
 package tracker.controllers;
 
 import tracker.model.Task;
+
 import java.util.*;
 
 public class InMemoryHistoryManager implements HistoryManager {
@@ -18,7 +19,7 @@ public class InMemoryHistoryManager implements HistoryManager {
     }
 
     private TaskManager taskManager;
-    private HashMap<Integer, Node> taskMap;
+    private final HashMap<Integer, Node> taskMap;
     private Node head;
     private Node tail;
 
