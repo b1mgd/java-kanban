@@ -13,6 +13,17 @@ public class Subtask extends Task {
     }
 
     @Override
+    public TaskType getType() {
+        return TaskType.SUBTASK;
+    }
+
+    @Override
+    public String writeToFile() {
+        return getId() + "," + getType() + "," + getName() + "," + getStatus() +
+                "," + getDescription() + "," + getEpicId();
+    }
+
+    @Override
     public String toString() {
         return "\nSubtask{" +
                 "name='" + getName() + '\'' +

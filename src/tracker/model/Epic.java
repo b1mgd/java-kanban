@@ -10,6 +10,7 @@ public class Epic extends Task {
     public Epic(String name, String description) {
         super(name, description);
         this.subTaskIds = new ArrayList<>();
+
     }
 
     public ArrayList<Integer> getSubTaskId() {
@@ -48,6 +49,17 @@ public class Epic extends Task {
             }
             setStatus(areAllNew ? TaskStatus.NEW : areAllDone ? TaskStatus.DONE : TaskStatus.IN_PROGRESS);
         }
+    }
+
+    @Override
+    public TaskType getType() {
+        return TaskType.EPIC;
+    }
+
+    @Override
+    public String writeToFile() {
+        return getId() + "," + getType() + "," + getName() + "," + getStatus() + "," +
+                getDescription() + ",";
     }
 
     @Override

@@ -8,7 +8,7 @@ import java.nio.charset.*;
 import java.nio.file.*;
 import java.util.List;
 
-public class FileBackedTaskManager extends InMemoryTaskManager implements TaskManager {
+public class FileBackedTaskManager extends InMemoryTaskManager {
 
     private static final Charset CHARSET = StandardCharsets.UTF_8;
     private final Path backUpFile;
@@ -78,18 +78,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
     }
 
     private static String toString(Task task) {
-        if (task instanceof Subtask subtask) {
-            return subtask.getId() + "," + TaskType.SUBTASK + "," + subtask.getName() + "," + subtask.getStatus() +
-                    "," + subtask.getDescription() + "," + subtask.getEpicId();
-
-        } else if (task instanceof Epic epic) {
-            return epic.getId() + "," + TaskType.EPIC + "," + epic.getName() + "," + epic.getStatus() + "," +
-                    epic.getDescription() + ",";
-
-        } else {
-            return task.getId() + "," + TaskType.TASK + "," + task.getName() + "," + task.getStatus() + "," +
-                    task.getDescription() + ",";
-        }
+        return task.writeToFile();
     }
 
     private static Task fromString(String value) {
@@ -180,7 +169,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
         Subtask subtask1, subtask2, subtask3;
         Path path;
 
-        path = Paths.get("src/tracker/util/backUpFile.csv");
+        path = Paths.get("src/tracker/controllers/resources/backUpFile.csv");
         historyManager = Managers.getDefaultHistory();
         taskManager = FileBackedTaskManager
                 .loadFromFile(path);
@@ -225,7 +214,6 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
             System.out.print(task);
         }
 
-        // очистка файла backUpFile после отработки программы, чтобы не засорять файл.
         try (FileWriter writer = new FileWriter(path.toFile())) {
             System.out.println("\nФайл был очищен после отработки");
         } catch (IOException e) {
