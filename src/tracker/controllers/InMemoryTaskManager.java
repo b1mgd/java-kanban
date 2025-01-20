@@ -1,15 +1,16 @@
 package tracker.controllers;
 
 import tracker.model.*;
+
 import java.util.HashMap;
 import java.util.ArrayList;
 
 public class InMemoryTaskManager implements TaskManager {
 
     private HistoryManager historyManager;
-    private HashMap<Integer, Task> taskMap = new HashMap<>();
-    private HashMap<Integer, Epic> epicMap = new HashMap<>();
-    private HashMap<Integer, Subtask> subtaskMap = new HashMap<>();
+    private final HashMap<Integer, Task> taskMap = new HashMap<>();
+    private final HashMap<Integer, Epic> epicMap = new HashMap<>();
+    private final HashMap<Integer, Subtask> subtaskMap = new HashMap<>();
     private int idCounter = 1;
 
     @Override
@@ -74,7 +75,6 @@ public class InMemoryTaskManager implements TaskManager {
             subtasks.add(subtaskMap.get(id));
         }
         return subtasks;
-
     }
 
     @Override
@@ -108,7 +108,6 @@ public class InMemoryTaskManager implements TaskManager {
             epic.updateStatus(subtaskMap);
         }
     }
-
 
     @Override
     public Task getTaskById(int id) {

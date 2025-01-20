@@ -46,6 +46,15 @@ public class Task {
         this.id = id;
     }
 
+    public TaskType getType() {
+        return TaskType.TASK;
+    }
+
+    public String writeToFile() {
+        return getId() + "," + getType() + "," + getName() + "," + getStatus() + "," +
+                getDescription() + ",";
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

@@ -1,7 +1,7 @@
 package tracker.model;
 
 public class Subtask extends Task {
-    private int epicId;
+    private final int epicId;
 
     public Subtask(String name, String description, int epicId) {
         super(name, description);
@@ -10,6 +10,17 @@ public class Subtask extends Task {
 
     public int getEpicId() {
         return epicId;
+    }
+
+    @Override
+    public TaskType getType() {
+        return TaskType.SUBTASK;
+    }
+
+    @Override
+    public String writeToFile() {
+        return getId() + "," + getType() + "," + getName() + "," + getStatus() +
+                "," + getDescription() + "," + getEpicId();
     }
 
     @Override
