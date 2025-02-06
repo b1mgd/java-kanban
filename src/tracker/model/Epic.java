@@ -1,19 +1,28 @@
 package tracker.model;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.*;
 
 public class Epic extends Task {
 
-    private final ArrayList<Integer> subTaskIds;
+    private final Set<Integer> subTaskIds;
 
     public Epic(String name, String description) {
-        super(name, description);
-        this.subTaskIds = new ArrayList<>();
-
+        super(name, description, 0L, null);
+        this.subTaskIds = new HashSet<>();
     }
 
-    public ArrayList<Integer> getSubTaskId() {
+    private void updateStartTime(Set<Task> taskSet) {
+        this.startTime = taskSet.stream()
+                .filter(task -> getSubTaskId().contains(task.getId()))
+                .map(Task::getStartTime)
+                .filter(Objects::nonNull)
+                .min(LocalDateTime::compareTo)
+                .orElse(null);
+    }
+
+    public Set<Integer> getSubTaskId() {
         return subTaskIds;
     }
 
@@ -21,7 +30,7 @@ public class Epic extends Task {
         subTaskIds.add(id);
     }
 
-    public void updateStatus(HashMap<Integer, Subtask> subtaskMap) {
+    public void updateStatus(Map<Integer, Subtask> subtaskMap) {
         if (subTaskIds.isEmpty()) {
             setStatus(TaskStatus.NEW);
             return;
@@ -51,6 +60,18 @@ public class Epic extends Task {
         }
     }
 
+    public void updateTime(Map<Integer, Subtask> subtaskMap, Set<Task> taskSet) {
+        duration = Duration.ZERO;
+        List<Long> subtasksDuration = subTaskIds.stream()
+                .map(id -> subtaskMap.get(id).getDuration())
+                .toList();
+        for (Long subtaskDuration : subtasksDuration) {
+            duration = duration.plusMinutes(subtaskDuration);
+        }
+        updateStartTime(taskSet);
+        updateEndTime();
+    }
+
     @Override
     public TaskType getType() {
         return TaskType.EPIC;
@@ -58,18 +79,23 @@ public class Epic extends Task {
 
     @Override
     public String writeToFile() {
-        return getId() + "," + getType() + "," + getName() + "," + getStatus() + "," +
-                getDescription() + ",";
+        return id + "," + getType() + "," + name + "," + status + "," +
+                description + "," + duration.toMinutes() + ","
+                + (startTime == null ? "null" : startTime.format(DATE_TIME_FORMATTER)) + ","
+                + (endTime == null ? "null" : endTime.format(DATE_TIME_FORMATTER)) + ",";
     }
 
     @Override
     public String toString() {
-        return "\nEpic{" +
-                "name='" + getName() + '\'' +
-                ", description='" + getDescription() + '\'' +
-                ", id=" + getId() +
-                ", status=" + getStatus() +
-                ", subTaskIds=" + getSubTaskId() +
+        return "Epic{" +
+                "name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", id=" + id +
+                ", status=" + status +
+                ", duration=" + duration.toMinutes() +
+                ", startTime=" + (startTime == null ? "null" : startTime.format(DATE_TIME_FORMATTER)) +
+                ", endTime=" + (endTime == null ? "null" : endTime.format(DATE_TIME_FORMATTER)) +
+                ", subTaskIds=" + subTaskIds +
                 "}";
     }
 }

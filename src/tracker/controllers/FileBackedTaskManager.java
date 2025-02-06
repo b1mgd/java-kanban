@@ -1,6 +1,6 @@
 package tracker.controllers;
 
-import tracker.controllers.Exceptions.*;
+import tracker.controllers.exceptions.*;
 import tracker.model.*;
 
 import java.io.*;
@@ -11,6 +11,7 @@ import java.util.List;
 public class FileBackedTaskManager extends InMemoryTaskManager {
 
     private static final Charset CHARSET = StandardCharsets.UTF_8;
+    private static final int MAX_LINE_LENGTH = 9;
     private final Path backUpFile;
 
     private FileBackedTaskManager(Path path) {
@@ -22,7 +23,8 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         if (Files.notExists(backUpFile.getParent())) {
             throw new ManagerSaveException("Указанного файла не существует");
         }
-        StringBuilder stringBuilder = new StringBuilder("id,type,name,status,description,epic\n");
+        StringBuilder stringBuilder
+                = new StringBuilder("id,type,name,status,description,duration,startTime,endTime,epic\n");
         saveTasksToStringBuilder(stringBuilder);
         Path tempFile;
         try {
@@ -88,24 +90,38 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         String name = taskInformation[2];
         TaskStatus status = TaskStatus.valueOf(taskInformation[3]);
         String description = taskInformation[4];
+        long duration = Long.parseLong(taskInformation[5]);
+        String startTime = taskInformation[6];
+        String endTime = taskInformation[7];
+
+        int epicId;
+        if (taskInformation.length == MAX_LINE_LENGTH) {
+            epicId = Integer.parseInt(taskInformation[8]);
+        } else {
+            epicId = 0;
+        }
 
         switch (type) {
             case TASK:
-                Task task = new Task(name, description);
+                Task task = new Task(name, description, duration, startTime);
                 task.setId(id);
                 task.setStatus(status);
+                task.setDuration(duration);
                 return task;
 
             case EPIC:
                 Epic epic = new Epic(name, description);
                 epic.setId(id);
                 epic.setStatus(status);
+                epic.setDuration(duration);
                 return epic;
 
             case SUBTASK:
-                Subtask subtask = new Subtask(name, description, Integer.parseInt(taskInformation[5]));
+                Subtask subtask =
+                        new Subtask(name, description, epicId, duration, startTime);
                 subtask.setId(id);
                 subtask.setStatus(status);
+                subtask.setDuration(duration);
                 return subtask;
 
             default:
@@ -171,16 +187,17 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
         path = Paths.get("src/tracker/controllers/resources/backUpFile.csv");
         historyManager = Managers.getDefaultHistory();
-        taskManager = FileBackedTaskManager
-                .loadFromFile(path);
+        taskManager = FileBackedTaskManager.loadFromFile(path);
 
         historyManager.setTaskManager(taskManager);
         taskManager.setHistoryManager(historyManager);
 
-        task1 = new Task("Task1", "Task_1_Description");
+        task1 = new Task("Task1", "Task_1_Description",
+                25, "10.01.2018 23:45");
         taskManager.createTask(task1);
 
-        task2 = new Task("Task2", "Task_2_Description");
+        task2 = new Task("Task2", "Task_2_Description",
+                20, "10.01.2018 23:24");
         taskManager.createTask(task2);
         task2.setStatus(TaskStatus.DONE);
 
@@ -188,14 +205,17 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         epic = new Epic("Epic", "Epic_Description");
         taskManager.createEpic(epic);
 
-        subtask1 = new Subtask("Subtask1", "Subtask_1_Description", epic.getId());
+        subtask1 = new Subtask("Subtask1", "Subtask_1_Description", epic.getId(),
+                60, "25.04.2031 20:31");
         taskManager.createSubtask(subtask1);
         subtask1.setStatus(TaskStatus.IN_PROGRESS);
 
-        subtask2 = new Subtask("Subtask2", "Subtask_2_Description", epic.getId());
+        subtask2 = new Subtask("Subtask2", "Subtask_2_Description", epic.getId(),
+                30, "25.04.2031 20:55");
         taskManager.createSubtask(subtask2);
 
-        subtask3 = new Subtask("Subtask3", "Subtask_3_Description", epic.getId());
+        subtask3 = new Subtask("Subtask3", "Subtask_3_Description", epic.getId(),
+                30, null);
         taskManager.createSubtask(subtask3);
 
         historyManager = Managers.getDefaultHistory();
@@ -209,10 +229,8 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         tasks.addAll(taskManager.getAllEpics());
         tasks.addAll(taskManager.getAllSubtasks());
 
-        System.out.print("Задачи после загрузки файла: ");
-        for (Task task : tasks) {
-            System.out.print(task);
-        }
+        System.out.print("Задачи после загрузки файла: \n");
+        tasks.forEach(System.out::println);
 
         try (FileWriter writer = new FileWriter(path.toFile())) {
             System.out.println("\nФайл был очищен после отработки");

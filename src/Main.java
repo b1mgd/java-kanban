@@ -8,17 +8,21 @@ public class Main {
         taskManager.setHistoryManager(historyManager);
         historyManager.setTaskManager(taskManager);
 
-        Task task1 = new Task("Задача 1", "Описание задачи 1");
-        Task task2 = new Task("Задача 2", "Описание задачи 2");
+        Task task1 = new Task("Задача 1", "Описание задачи 1",
+                15L, "10.01.2025 08:00");
+        Task task2 = new Task("Задача 2", "Описание задачи 2", 23L, null);
         taskManager.createTask(task1);
         taskManager.createTask(task2);
 
         Epic epic1 = new Epic("Эпик 1", "Описание эпика 1");
         taskManager.createEpic(epic1);
 
-        Subtask subtask1 = new Subtask("Подзадача 1", "Описание подзадачи 1", epic1.getId());
-        Subtask subtask2 = new Subtask("Подзадача 2", "Описание подзадачи 2", epic1.getId());
-        Subtask subtask3 = new Subtask("Подзадача 3", "Описание подзадачи 3", epic1.getId());
+        Subtask subtask1 = new Subtask("Подзадача 1", "Описание подзадачи 1", epic1.getId(),
+                15, "15.01.2025 09:00");
+        Subtask subtask2 = new Subtask("Подзадача 2", "Описание подзадачи 2", epic1.getId(),
+                25, "17.02.2025 08:03");
+        Subtask subtask3 = new Subtask("Подзадача 3", "Описание подзадачи 3", epic1.getId(),
+                50, null);
         taskManager.createSubtask(subtask1);
         taskManager.createSubtask(subtask2);
         taskManager.createSubtask(subtask3);

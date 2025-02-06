@@ -1,6 +1,5 @@
-package test.java.controllers;
+package tracker.controllers;
 
-import tracker.controllers.*;
 import tracker.model.Task;
 import org.junit.jupiter.api.Test;
 
@@ -18,7 +17,7 @@ class ManagersTest {
         assertNotNull(taskManager);
         assertTrue(taskManager instanceof InMemoryTaskManager);
 
-        Task task = new Task("Задача", "Описание задачи");
+        Task task = new Task("Задача", "Описание задачи", 0L, null);
         taskManager.createTask(task);
         assertFalse(taskManager.getAllTasks().isEmpty());
 

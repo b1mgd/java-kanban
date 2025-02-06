@@ -1,7 +1,6 @@
-package test.java.model;
+package tracker.model;
 
 import tracker.controllers.*;
-import tracker.model.Task;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -22,7 +21,8 @@ class TaskTest {
 
     @Test
     void tasksAreEqualIfIdsAreEqual() {
-        Task task = new Task("Закупка материалов", "Закупка необходимых материалов для проекта");
+        Task task = new Task("Закупка материалов", "Закупка необходимых материалов для проекта",
+                0L, null);
         taskManager.createTask(task);
         Task task1 = taskManager.getTaskById(task.getId());
         assertEquals(task.getId(), task1.getId(), "ID не равны");
