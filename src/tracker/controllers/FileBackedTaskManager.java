@@ -206,12 +206,12 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         taskManager.createEpic(epic);
 
         subtask1 = new Subtask("Subtask1", "Subtask_1_Description", epic.getId(),
-                60, "25.04.2031 20:31");
+                60, "25.04.2031 20:30");
         taskManager.createSubtask(subtask1);
         subtask1.setStatus(TaskStatus.IN_PROGRESS);
 
         subtask2 = new Subtask("Subtask2", "Subtask_2_Description", epic.getId(),
-                30, "25.04.2031 20:55");
+                30, "25.04.2031 21:35");
         taskManager.createSubtask(subtask2);
 
         subtask3 = new Subtask("Subtask3", "Subtask_3_Description", epic.getId(),

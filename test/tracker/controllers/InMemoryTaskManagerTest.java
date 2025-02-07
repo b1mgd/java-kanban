@@ -75,12 +75,9 @@ class InMemoryTaskManagerTest extends TaskManagerTest<TaskManager> {
 
         taskManager.deleteEpics();
 
-        epics = taskManager.getAllEpics();
-        taskManager.getAllEpics().forEach(System.out::println);
-        subtasks = taskManager.getAllSubtasks();
-        taskManager.getAllSubtasks().forEach(System.out::println);
+        assertTrue(taskManager.getAllEpics().isEmpty()
+                && taskManager.getAllSubtasks().isEmpty(), "После очистки списки не пусты");
 
-        assertTrue(epics.isEmpty() && subtasks.isEmpty(), "После очистки списки не пусты");
 
         taskManager.createEpic(epic);
         taskManager.createSubtask(subtask1);

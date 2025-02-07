@@ -20,7 +20,7 @@ public class Main {
         Subtask subtask1 = new Subtask("Подзадача 1", "Описание подзадачи 1", epic1.getId(),
                 15, "15.01.2025 09:00");
         Subtask subtask2 = new Subtask("Подзадача 2", "Описание подзадачи 2", epic1.getId(),
-                25, "17.02.2025 08:03");
+                25, "17.02.2025 08:00");
         Subtask subtask3 = new Subtask("Подзадача 3", "Описание подзадачи 3", epic1.getId(),
                 50, null);
         taskManager.createSubtask(subtask1);
@@ -34,6 +34,7 @@ public class Main {
         taskManager.getTaskById(epic1.getId());
         taskManager.getTaskById(subtask1.getId());
         taskManager.getTaskById(task2.getId());
+        taskManager.getTaskById(subtask2.getId());
         taskManager.getTaskById(subtask3.getId());
 
         System.out.println("История после нескольких запросов:");

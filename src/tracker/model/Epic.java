@@ -1,6 +1,5 @@
 package tracker.model;
 
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -13,13 +12,8 @@ public class Epic extends Task {
         this.subTaskIds = new HashSet<>();
     }
 
-    private void updateStartTime(Set<Task> taskSet) {
-        this.startTime = taskSet.stream()
-                .filter(task -> getSubTaskId().contains(task.getId()))
-                .map(Task::getStartTime)
-                .filter(Objects::nonNull)
-                .min(LocalDateTime::compareTo)
-                .orElse(null);
+    public void setEndTime(LocalDateTime endTime) {
+        this.endTime = endTime;
     }
 
     public Set<Integer> getSubTaskId() {
@@ -58,18 +52,6 @@ public class Epic extends Task {
             }
             setStatus(areAllNew ? TaskStatus.NEW : areAllDone ? TaskStatus.DONE : TaskStatus.IN_PROGRESS);
         }
-    }
-
-    public void updateTime(Map<Integer, Subtask> subtaskMap, Set<Task> taskSet) {
-        duration = Duration.ZERO;
-        List<Long> subtasksDuration = subTaskIds.stream()
-                .map(id -> subtaskMap.get(id).getDuration())
-                .toList();
-        for (Long subtaskDuration : subtasksDuration) {
-            duration = duration.plusMinutes(subtaskDuration);
-        }
-        updateStartTime(taskSet);
-        updateEndTime();
     }
 
     @Override

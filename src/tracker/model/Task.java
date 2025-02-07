@@ -26,7 +26,7 @@ public class Task {
         updateEndTime();
     }
 
-    protected void updateEndTime() {
+    private void updateEndTime() {
         if (startTime != null && !duration.equals(Duration.ZERO)) {
             endTime = startTime.plus(duration);
         }
