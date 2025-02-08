@@ -1,19 +1,22 @@
 package tracker.model;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.time.LocalDateTime;
+import java.util.*;
 
 public class Epic extends Task {
 
-    private final ArrayList<Integer> subTaskIds;
+    private final Set<Integer> subTaskIds;
 
     public Epic(String name, String description) {
-        super(name, description);
-        this.subTaskIds = new ArrayList<>();
-
+        super(name, description, 0L, null);
+        this.subTaskIds = new HashSet<>();
     }
 
-    public ArrayList<Integer> getSubTaskId() {
+    public void setEndTime(LocalDateTime endTime) {
+        this.endTime = endTime;
+    }
+
+    public Set<Integer> getSubTaskId() {
         return subTaskIds;
     }
 
@@ -21,7 +24,7 @@ public class Epic extends Task {
         subTaskIds.add(id);
     }
 
-    public void updateStatus(HashMap<Integer, Subtask> subtaskMap) {
+    public void updateStatus(Map<Integer, Subtask> subtaskMap) {
         if (subTaskIds.isEmpty()) {
             setStatus(TaskStatus.NEW);
             return;
@@ -58,18 +61,23 @@ public class Epic extends Task {
 
     @Override
     public String writeToFile() {
-        return getId() + "," + getType() + "," + getName() + "," + getStatus() + "," +
-                getDescription() + ",";
+        return id + "," + getType() + "," + name + "," + status + "," +
+                description + "," + duration.toMinutes() + ","
+                + (startTime == null ? "null" : startTime.format(DATE_TIME_FORMATTER)) + ","
+                + (endTime == null ? "null" : endTime.format(DATE_TIME_FORMATTER)) + ",";
     }
 
     @Override
     public String toString() {
-        return "\nEpic{" +
-                "name='" + getName() + '\'' +
-                ", description='" + getDescription() + '\'' +
-                ", id=" + getId() +
-                ", status=" + getStatus() +
-                ", subTaskIds=" + getSubTaskId() +
+        return "Epic{" +
+                "name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", id=" + id +
+                ", status=" + status +
+                ", duration=" + duration.toMinutes() +
+                ", startTime=" + (startTime == null ? "null" : startTime.format(DATE_TIME_FORMATTER)) +
+                ", endTime=" + (endTime == null ? "null" : endTime.format(DATE_TIME_FORMATTER)) +
+                ", subTaskIds=" + subTaskIds +
                 "}";
     }
 }

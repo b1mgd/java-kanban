@@ -1,7 +1,6 @@
-package test.java.model;
+package tracker.model;
 
 import tracker.controllers.*;
-import tracker.model.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -25,7 +24,8 @@ class SubtaskTest {
 
         epic = new Epic("Организация переезда", "Переезд в новую квартиру");
         taskManager.createEpic(epic);
-        subtask = new Subtask("Упаковка вещей", "Упаковать вещи в коробки", epic.getId());
+        subtask = new Subtask("Упаковка вещей", "Упаковать вещи в коробки", epic.getId(),
+                0L, null);
         taskManager.createSubtask(subtask);
 
     }
@@ -40,7 +40,7 @@ class SubtaskTest {
     @Test
     void shouldNotAllowSubtaskToAddItselfAsEpic() {
         Subtask invalidSubtask = new Subtask("Неверная подзадача",
-                "Попытка сделать подзадачу своим эпиком", epic.getId());
+                "Попытка сделать подзадачу своим эпиком", epic.getId(), 0L, null);
         invalidSubtask.setId(epic.getId());
         taskManager.createSubtask(invalidSubtask);
         assertFalse(taskManager.getAllSubtasks().contains(invalidSubtask),

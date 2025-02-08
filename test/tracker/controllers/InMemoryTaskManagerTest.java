@@ -1,52 +1,21 @@
-package test.java.controllers;
+package tracker.controllers;
 
 import tracker.model.*;
-import tracker.controllers.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-
 import static org.junit.jupiter.api.Assertions.*;
 
-class InMemoryTaskManagerTest {
+class InMemoryTaskManagerTest extends TaskManagerTest<TaskManager> {
 
-    TaskManager taskManager;
-    HistoryManager historyManager;
-    Task task1, task2;
-    Epic epic;
-    Subtask subtask1, subtask2;
-    ArrayList<Task> tasks;
-    ArrayList<Epic> epics;
-    ArrayList<Subtask> subtasks;
-    ArrayList<Subtask> subtasksOfEpic;
+    @Override
+    protected TaskManager createTaskManager() {
+        return Managers.getDefault();
+    }
 
     @BeforeEach
     void setUp() {
-        taskManager = Managers.getDefault();
-        historyManager = Managers.getDefaultHistory();
-
-        taskManager.setHistoryManager(historyManager);
-        historyManager.setTaskManager(taskManager);
-
-        taskManager.deleteTasks();
-        taskManager.deleteEpics();
-
-        task1 = new Task("Закупка материалов", "Закупка необходимых материалов для проекта");
-        taskManager.createTask(task1);
-        task2 = new Task("Создание плана проекта", "Создать план и распределить задачи");
-        taskManager.createTask(task2);
-        epic = new Epic("Организация переезда", "Переезд в новую квартиру");
-        taskManager.createEpic(epic);
-        subtask1 = new Subtask("Упаковка вещей", "Упаковать вещи в коробки", epic.getId());
-        taskManager.createSubtask(subtask1);
-        subtask2 = new Subtask("Заказ транспорта", "Заказать грузовое такси", epic.getId());
-        taskManager.createSubtask(subtask2);
-
-        tasks = taskManager.getAllTasks();
-        epics = taskManager.getAllEpics();
-        subtasks = taskManager.getAllSubtasks();
-        subtasksOfEpic = taskManager.getSubtasksOfEpic(epic.getId());
+        super.setUp();
     }
 
     @Test
@@ -74,11 +43,13 @@ class InMemoryTaskManagerTest {
         assertEquals(epic, savedEpic, "Эпики не совпадают");
 
         assertNotNull(epics, "Эпики не возвращаются");
-        assertEquals(1, epics.size(), "Неверное количество эпиков");
-        assertEquals(epic, epics.getFirst(), "Эпики не совпадают");
         assertFalse(epic.getSubTaskId().isEmpty(), "Список подзадач пуст");
 
+        assertEquals(1, epics.size(), "Неверное количество эпиков");
+        assertEquals(epic, epics.getFirst(), "Эпики не совпадают");
+
         taskManager.deleteEpics();
+
         epics = taskManager.getAllEpics();
 
         assertTrue(epics.isEmpty(), "После очистки список не пуст");
@@ -89,14 +60,14 @@ class InMemoryTaskManagerTest {
         Subtask savedSubtask1 = (Subtask) taskManager.getTaskById(subtask1.getId());
         Subtask savedSubtask2 = (Subtask) taskManager.getTaskById(subtask2.getId());
 
-        assertNotNull(savedSubtask1, "Подзадача не найдена");
-        assertNotNull(savedSubtask2, "Подзадача не найдена");
         assertEquals(subtask1, savedSubtask1, "Подзадачи не совпадают");
         assertEquals(subtask2, savedSubtask2, "Подзадачи не совпадают");
         assertNotNull(subtasks, "Подзадачи не возвращаются");
+
         assertEquals(2, subtasks.size(), "Неверное количество подзадач");
         assertEquals(subtask1, subtasks.get(0), "Подзадачи не совпадают");
         assertEquals(subtask2, subtasks.get(1), "Подзадачи не совпадают");
+
         assertNotNull(subtasksOfEpic, "Подзадачи не возвращаются");
         assertEquals(2, subtasksOfEpic.size(), "Неверное количество подзадач");
         assertEquals(subtask1, subtasksOfEpic.get(0), "Подзадачи не совпадают");
@@ -104,19 +75,18 @@ class InMemoryTaskManagerTest {
 
         taskManager.deleteEpics();
 
-        epics = taskManager.getAllEpics();
-        subtasks = taskManager.getAllSubtasks();
+        assertTrue(taskManager.getAllEpics().isEmpty()
+                && taskManager.getAllSubtasks().isEmpty(), "После очистки списки не пусты");
 
-        assertTrue(epics.isEmpty() && subtasks.isEmpty(), "После очистки списки не пусты");
 
         taskManager.createEpic(epic);
         taskManager.createSubtask(subtask1);
+
+        taskManager.deleteEpics();
         taskManager.deleteSubtasks();
 
-        subtasks = taskManager.getAllSubtasks();
-
-        assertTrue(subtasks.isEmpty() && epic.getSubTaskId().isEmpty(), "Список подзадач " +
-                "после очистки не пуст");
+        assertTrue(taskManager.getAllSubtasks().isEmpty() && taskManager.getAllEpics().isEmpty(),
+                "Список подзадач после очистки не пуст");
     }
 
     @Test
@@ -130,6 +100,7 @@ class InMemoryTaskManagerTest {
     @Test
     void updateTask() {
         taskManager.updateTask(task2, task1.getId());
+
         Task updatedTask = taskManager.getTaskById(task1.getId());
 
         assertEquals(task2.getName(), updatedTask.getName(), "Задача по данному ID не была обновлена");
@@ -144,5 +115,12 @@ class InMemoryTaskManagerTest {
         assertEquals(task1.getStatus(), taskManager.getTaskById(task1.getId()).getStatus());
         assertEquals(task1.getDescription(), taskManager.getTaskById(task1.getId()).getDescription());
         assertEquals(task1.getName(), taskManager.getTaskById(task1.getId()).getName());
+    }
+
+    @Test
+    void shouldThrowExceptionWhenOverlappingTaskCreated() {
+        Task overlappingTask = new Task("Конфликтующая задача", "Описание конфликтующей задачи",
+                15, "01.02.2025 10:10");
+        assertThrows(IllegalArgumentException.class, () -> taskManager.createTask(overlappingTask));
     }
 }
