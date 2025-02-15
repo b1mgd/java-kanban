@@ -11,7 +11,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
     protected Task task1, task2;
     protected Epic epic;
     protected Subtask subtask1, subtask2;
-    
+
     protected List<Task> tasks;
     protected List<Epic> epics;
     protected List<Subtask> subtasks;
