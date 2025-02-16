@@ -1,4 +1,4 @@
-package tracker.httpServer;
+package tracker.serverHandlers;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -11,18 +11,18 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.util.List;
 
-import static tracker.httpServer.BaseHttpHandler.GSON;
+import static tracker.serverHandlers.BaseHttpHandler.GSON;
 
 public class HistoryHttpHandler implements HttpHandler {
-    TaskManager taskManager;
-    HistoryManager historyManager;
-    String requestMethod;
-    String requestPath;
-    String[] requestPathArray;
-    String responseText;
-    int responseCode;
+    protected TaskManager taskManager;
+    protected HistoryManager historyManager;
+    protected String requestMethod;
+    protected String requestPath;
+    protected String[] requestPathArray;
+    protected String responseText;
+    protected int responseCode;
 
-    HistoryHttpHandler(TaskManager taskManager, HistoryManager historyManager) {
+    public HistoryHttpHandler(TaskManager taskManager, HistoryManager historyManager) {
         this.taskManager = taskManager;
         this.historyManager = historyManager;
     }

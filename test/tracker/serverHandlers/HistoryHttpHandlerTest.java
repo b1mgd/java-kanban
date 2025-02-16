@@ -1,4 +1,4 @@
-package tracker.httpServer;
+package tracker.serverHandlers;
 
 import com.google.gson.reflect.TypeToken;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,7 +14,7 @@ import java.net.http.HttpResponse;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static tracker.httpServer.BaseHttpHandler.GSON;
+import static tracker.serverHandlers.BaseHttpHandler.GSON;
 
 public class HistoryHttpHandlerTest extends BaseHttpHandlerTest {
 

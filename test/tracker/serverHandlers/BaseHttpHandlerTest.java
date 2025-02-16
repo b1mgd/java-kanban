@@ -1,4 +1,4 @@
-package tracker.httpServer;
+package tracker.serverHandlers;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
@@ -9,6 +9,7 @@ import tracker.controllers.TaskManager;
 import tracker.model.Epic;
 import tracker.model.Subtask;
 import tracker.model.Task;
+import tracker.controllers.HttpTaskServer;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -18,6 +19,7 @@ import java.util.List;
 
 public abstract class BaseHttpHandlerTest {
     protected static final String BASE_URL = "http://localhost:8080";
+    protected static HttpTaskServer taskServer;
     protected HttpClient httpClient;
     protected TaskManager taskManager;
     protected HistoryManager historyManager;
@@ -34,18 +36,22 @@ public abstract class BaseHttpHandlerTest {
 
     @BeforeAll
     static void startServer() {
-        HttpTaskServer.startServer();
+        taskServer = new HttpTaskServer();
+        taskServer.startServer();
     }
 
     @AfterAll
     static void stopServer() {
-        HttpTaskServer.stopServer();
+        if (taskServer != null) {
+            taskServer.stopServer();
+        }
     }
 
     @BeforeEach
     void setUp() {
-        taskManager = HttpTaskServer.getTaskManager();
-        historyManager = HttpTaskServer.getHistoryManager();
+
+        taskManager = taskServer.getTaskManager();
+        historyManager = taskManager.getHistoryManager();
         httpClient = HttpClient.newHttpClient();
 
         task1 = new Task("Задача 1", "Описание задачи 1",

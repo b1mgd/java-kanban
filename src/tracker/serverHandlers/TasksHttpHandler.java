@@ -1,4 +1,4 @@
-package tracker.httpServer;
+package tracker.serverHandlers;
 
 import tracker.controllers.HistoryManager;
 import tracker.controllers.TaskManager;
@@ -10,7 +10,7 @@ import java.util.Optional;
 
 public class TasksHttpHandler extends BaseHttpHandler {
 
-    TasksHttpHandler(TaskManager taskManager, HistoryManager historyManager) {
+    public TasksHttpHandler(TaskManager taskManager, HistoryManager historyManager) {
         super(taskManager, historyManager);
     }
 

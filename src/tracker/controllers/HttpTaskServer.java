@@ -1,24 +1,31 @@
-package tracker.httpServer;
+package tracker.controllers;
 
 import com.sun.net.httpserver.HttpServer;
-import tracker.controllers.*;
+import tracker.serverHandlers.*;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
 
 public class HttpTaskServer {
     private static final int PORT = 8080;
-    private static TaskManager taskManager;
-    private static HistoryManager historyManager;
-    private static HttpServer httpServer;
+    private final TaskManager taskManager;
+    private final HistoryManager historyManager;
+    private HttpServer httpServer;
 
-    public static void main(String[] args) {
-        startServer();
+    public HttpTaskServer() {
+        taskManager = Managers.getDefault();
+        historyManager = Managers.getDefaultHistory();
+
+        taskManager.setHistoryManager(historyManager);
+        historyManager.setTaskManager(taskManager);
     }
 
-    public static void startServer() {
-        setUpManagers();
+    public static void main(String[] args) {
+        HttpTaskServer taskServer = new HttpTaskServer();
+        taskServer.startServer();
+    }
 
+    public void startServer() {
         try {
             httpServer = HttpServer.create(new InetSocketAddress(PORT), 0);
 
@@ -36,26 +43,18 @@ public class HttpTaskServer {
         }
     }
 
-    public static TaskManager getTaskManager() {
+    public TaskManager getTaskManager() {
         return taskManager;
     }
 
-    public static HistoryManager getHistoryManager() {
+    public HistoryManager getHistoryManager() {
         return historyManager;
     }
 
-    public static void stopServer() {
+    public void stopServer() {
         if (httpServer != null) {
             httpServer.stop(0);
             System.out.println("Остановка сервера");
         }
-    }
-
-    private static void setUpManagers() {
-        taskManager = Managers.getDefault();
-        historyManager = Managers.getDefaultHistory();
-
-        taskManager.setHistoryManager(historyManager);
-        historyManager.setTaskManager(taskManager);
     }
 }

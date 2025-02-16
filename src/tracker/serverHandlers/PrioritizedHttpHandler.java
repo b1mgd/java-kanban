@@ -1,4 +1,4 @@
-package tracker.httpServer;
+package tracker.serverHandlers;
 
 import com.sun.net.httpserver.HttpExchange;
 import tracker.controllers.HistoryManager;
@@ -10,7 +10,7 @@ import java.net.HttpURLConnection;
 import java.util.List;
 
 public class PrioritizedHttpHandler extends HistoryHttpHandler {
-    PrioritizedHttpHandler(TaskManager taskManager, HistoryManager historyManager) {
+    public PrioritizedHttpHandler(TaskManager taskManager, HistoryManager historyManager) {
         super(taskManager, historyManager);
     }
 

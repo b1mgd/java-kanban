@@ -1,4 +1,4 @@
-package tracker.httpServer;
+package tracker.serverHandlers;
 
 import tracker.controllers.HistoryManager;
 import tracker.controllers.TaskManager;
@@ -13,7 +13,7 @@ import java.util.Optional;
 
 public class EpicsHttpHandler extends BaseHttpHandler {
 
-    EpicsHttpHandler(TaskManager taskManager, HistoryManager historyManager) {
+    public EpicsHttpHandler(TaskManager taskManager, HistoryManager historyManager) {
         super(taskManager, historyManager);
     }
 

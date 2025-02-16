@@ -1,4 +1,4 @@
-package tracker.httpServer;
+package tracker.serverHandlers;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -7,6 +7,8 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import tracker.controllers.HistoryManager;
 import tracker.controllers.TaskManager;
+import tracker.serverHandlers.typeAdapters.DurationTypeAdapter;
+import tracker.serverHandlers.typeAdapters.LocalDateTimeTypeAdapter;
 import tracker.model.Task;
 
 import java.io.IOException;

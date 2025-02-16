@@ -1,10 +1,9 @@
-package tracker.httpServer;
+package tracker.serverHandlers;
 
 import com.google.gson.reflect.TypeToken;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import tracker.model.Task;
+import tracker.model.Subtask;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -14,20 +13,28 @@ import java.net.http.HttpResponse;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static tracker.httpServer.BaseHttpHandler.GSON;
+import static tracker.serverHandlers.BaseHttpHandler.GSON;
 
-public class TasksHttpHandlerTest extends BaseHttpHandlerTest {
+public class SubtasksHttpHandlerTest extends BaseHttpHandlerTest {
 
     @BeforeEach
     void setUp() {
         super.setUp();
-        baseUrl = BASE_URL + "/tasks";
+        baseUrl = BASE_URL + "/subtasks";
+        taskManager.createEpic(epic1);
+
+        subtask1 = new Subtask("Подзадача 1", "Описание подзадачи 1", epic1.getId(),
+                15, "08.01.2025 12:00");
+        subtask2 = new Subtask("Подзадача 2", "Описание подзадачи 2", epic1.getId(),
+                45, "08.01.2025 12:15");
+        subtask3 = new Subtask("Подзадача 3", "Описание подзадачи 3", epic1.getId(),
+                30, "08.01.2025 12:00");
     }
 
     @Test
-    void shouldGetAllTasks() {
-        taskManager.createTask(task1);
-        taskManager.createTask(task2);
+    void shouldGetAllSubtasks() {
+        taskManager.createSubtask(subtask1);
+        taskManager.createSubtask(subtask2);
 
         url = URI.create(baseUrl);
         request = HttpRequest.newBuilder()
@@ -39,13 +46,13 @@ public class TasksHttpHandlerTest extends BaseHttpHandlerTest {
             response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
             assertEquals(HttpURLConnection.HTTP_OK, response.statusCode());
 
-            tasks = GSON.fromJson(response.body(), new TypeToken<List<Task>>() {
+            subtasks = GSON.fromJson(response.body(), new TypeToken<List<Subtask>>() {
             }.getType());
 
-            assertNotNull(tasks);
-            assertEquals(2, tasks.size(), "Список задач неполный");
-            assertEquals(task1.getName(), tasks.get(0).getName(), "Неверное имя задачи 1");
-            assertEquals(task2.getName(), tasks.get(1).getName(), "Неверное имя задачи 2");
+            assertNotNull(subtasks);
+            assertEquals(2, subtasks.size(), "Список подзадач неполный");
+            assertEquals(subtask1.getName(), subtasks.get(0).getName(), "Неверное имя подзадачи 1");
+            assertEquals(subtask2.getName(), subtasks.get(1).getName(), "Неверное имя подзадачи 2");
 
         } catch (InterruptedException | IOException e) {
             System.out.println(e.getMessage());
@@ -53,10 +60,10 @@ public class TasksHttpHandlerTest extends BaseHttpHandlerTest {
     }
 
     @Test
-    void shouldGetSpecificTask() {
-        taskManager.createTask(task1);
+    void shouldGetSpecificSubtask() {
+        taskManager.createSubtask(subtask1);
 
-        url = URI.create(baseUrl + "/" + task1.getId());
+        url = URI.create(baseUrl + "/" + subtask1.getId());
         request = HttpRequest.newBuilder()
                 .uri(url)
                 .GET()
@@ -66,10 +73,10 @@ public class TasksHttpHandlerTest extends BaseHttpHandlerTest {
             response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
             assertEquals(HttpURLConnection.HTTP_OK, response.statusCode());
 
-            Task task = GSON.fromJson(response.body(), Task.class);
+            Subtask subtask = GSON.fromJson(response.body(), Subtask.class);
 
-            assertNotNull(task);
-            assertEquals(task1.getName(), task.getName(), "Неверное имя задачи");
+            assertNotNull(subtask);
+            assertEquals(subtask1.getName(), subtask.getName(), "Неверное имя задачи");
 
         } catch (InterruptedException | IOException e) {
             System.out.println(e.getMessage());
@@ -77,7 +84,7 @@ public class TasksHttpHandlerTest extends BaseHttpHandlerTest {
     }
 
     @Test
-    void shouldSendTaskNotFound() {
+    void shouldSendSubtaskNotFound() {
         url = URI.create(baseUrl + "/10");
         request = HttpRequest.newBuilder()
                 .uri(url)
@@ -96,12 +103,12 @@ public class TasksHttpHandlerTest extends BaseHttpHandlerTest {
     }
 
     @Test
-    void shouldPostTask() {
-        String jsonTask = GSON.toJson(task1);
+    void shouldPostSubtask() {
+        String jsonSubtask = GSON.toJson(subtask1);
         url = URI.create(baseUrl);
         request = HttpRequest.newBuilder()
                 .uri(url)
-                .POST(HttpRequest.BodyPublishers.ofString(jsonTask))
+                .POST(HttpRequest.BodyPublishers.ofString(jsonSubtask))
                 .build();
 
         try {
@@ -112,22 +119,22 @@ public class TasksHttpHandlerTest extends BaseHttpHandlerTest {
             System.out.println(e.getMessage());
         }
 
-        tasks = taskManager.getAllTasks();
+        subtasks = taskManager.getAllSubtasks();
 
-        assertNotNull(tasks, "Задачи не возвращаются");
-        assertEquals(1, tasks.size());
-        assertEquals(task1.getName(), tasks.get(0).getName(), "Неверное имя задачи");
+        assertNotNull(subtasks, "Задачи не возвращаются");
+        assertEquals(1, subtasks.size());
+        assertEquals(subtask1.getName(), subtasks.get(0).getName(), "Неверное имя задачи");
     }
 
     @Test
     void shouldPreventAddingIntersectingTask() {
-        taskManager.createTask(task1);
-        String jsonTask = GSON.toJson(task1);
+        taskManager.createSubtask(subtask1);
+        String jsonSubtask = GSON.toJson(subtask3);
 
         url = URI.create(baseUrl);
         request = HttpRequest.newBuilder()
                 .uri(url)
-                .POST(HttpRequest.BodyPublishers.ofString(jsonTask))
+                .POST(HttpRequest.BodyPublishers.ofString(jsonSubtask))
                 .build();
 
         try {
@@ -141,14 +148,14 @@ public class TasksHttpHandlerTest extends BaseHttpHandlerTest {
     }
 
     @Test
-    void shouldUpdateTask() {
-        taskManager.createTask(task1);
-        String jsonTask = GSON.toJson(task2);
+    void shouldUpdateSubtask() {
+        taskManager.createSubtask(subtask1);
+        String jsonSubtask = GSON.toJson(subtask2);
 
-        url = URI.create(baseUrl + "/" + task1.getId());
+        url = URI.create(baseUrl + "/" + subtask1.getId());
         request = HttpRequest.newBuilder()
                 .uri(url)
-                .POST(HttpRequest.BodyPublishers.ofString(jsonTask))
+                .POST(HttpRequest.BodyPublishers.ofString(jsonSubtask))
                 .build();
 
         try {
@@ -159,18 +166,18 @@ public class TasksHttpHandlerTest extends BaseHttpHandlerTest {
             System.out.println(e.getMessage());
         }
 
-        tasks = taskManager.getAllTasks();
+        subtasks = taskManager.getAllSubtasks();
 
-        assertNotNull(tasks);
-        assertEquals(1, tasks.size());
-        assertEquals(task2.getName(), tasks.get(0).getName(), "Неверное имя обновленной задачи");
+        assertNotNull(subtasks);
+        assertEquals(1, subtasks.size());
+        assertEquals(subtask2.getName(), subtasks.get(0).getName(), "Неверное имя обновленной подзадачи");
     }
 
     @Test
-    void shouldDeleteTask() {
-        taskManager.createTask(task1);
+    void shouldDeleteSubtask() {
+        taskManager.createSubtask(subtask1);
 
-        url = URI.create(baseUrl + "/" + task1.getId());
+        url = URI.create(baseUrl + "/" + subtask1.getId());
         request = HttpRequest.newBuilder()
                 .uri(url)
                 .DELETE()
