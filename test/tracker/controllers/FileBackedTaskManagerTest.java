@@ -57,8 +57,8 @@ class FileBackedTaskManagerTest extends TaskManagerTest<TaskManager> {
     @Test
     void shouldSaveAndLoadTasks() {
         assertEquals(2, tasks.size(), "Задачи не были загружены");
-        assertEquals(task1.getName(), tasks.getFirst().getName(), "Неверное имя задачи");
-        assertEquals(task1.getDescription(), tasks.getFirst().getDescription(),
+        assertEquals(task1.getName(), tasks.get(0).getName(), "Неверное имя задачи");
+        assertEquals(task1.getDescription(), tasks.get(0).getDescription(),
                 "Описание задачи некорректно");
     }
 
@@ -67,9 +67,9 @@ class FileBackedTaskManagerTest extends TaskManagerTest<TaskManager> {
         assertEquals(1, epics.size(), "Эпики не были корректно загружены");
         assertEquals(2, subtasks.size(), "Подзадачи не были корректно загружены");
 
-        assertEquals(epic.getName(), epics.getFirst().getName(), "Имя эпика некорректно");
-        assertEquals(subtask1.getName(), subtasks.getFirst().getName(), "Имя подзадачи некорректно");
-        assertEquals(epic.getId(), subtasks.getFirst().getEpicId(), "Подзадача связана с некорректным эпиком");
+        assertEquals(epic.getName(), epics.get(0).getName(), "Имя эпика некорректно");
+        assertEquals(subtask1.getName(), subtasks.get(0).getName(), "Имя подзадачи некорректно");
+        assertEquals(epic.getId(), subtasks.get(0).getEpicId(), "Подзадача связана с некорректным эпиком");
     }
 
     @Test
@@ -97,7 +97,7 @@ class FileBackedTaskManagerTest extends TaskManagerTest<TaskManager> {
         List<Task> tasks = taskManager.getAllTasks();
 
         assertEquals(1, tasks.size(), "Неверное количество задач после удаления");
-        assertEquals(task2.getName(), tasks.getFirst().getName(), "Задача не была удалена");
+        assertEquals(task2.getName(), tasks.get(0).getName(), "Задача не была удалена");
     }
 
     @Test

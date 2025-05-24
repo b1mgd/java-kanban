@@ -27,7 +27,7 @@ class InMemoryTaskManagerTest extends TaskManagerTest<TaskManager> {
 
         assertNotNull(tasks, "Задачи не возвращаются");
         assertEquals(2, tasks.size(), "Неверное количество задач");
-        assertEquals(task1, tasks.getFirst(), "Задачи не совпадают");
+        assertEquals(task1, tasks.get(0), "Задачи не совпадают");
 
         taskManager.deleteTasks();
         tasks = taskManager.getAllTasks();
@@ -46,7 +46,7 @@ class InMemoryTaskManagerTest extends TaskManagerTest<TaskManager> {
         assertFalse(epic.getSubTaskId().isEmpty(), "Список подзадач пуст");
 
         assertEquals(1, epics.size(), "Неверное количество эпиков");
-        assertEquals(epic, epics.getFirst(), "Эпики не совпадают");
+        assertEquals(epic, epics.get(0), "Эпики не совпадают");
 
         taskManager.deleteEpics();
 
