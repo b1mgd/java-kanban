@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Детали задачи</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .task-detail {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .status-badge {
+            font-size: 1rem;
+            padding: 0.5rem 1rem;
+        }
+        .task-time {
+            background-color: #f8f9fa;
+            padding: 1rem;
+            border-radius: 0.25rem;
+            margin: 1rem 0;
+        }
+        .back-button {
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">Менеджер задач</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/tasks">Задачи</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/epics">Эпики</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/subtasks">Подзадачи</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/history">История</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/prioritized">Приоритетные</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="task-detail">
+            <button class="btn btn-outline-secondary back-button" onclick="history.back()">
+                ← Назад
+            </button>
+
+            <div id="taskDetail">
+                <!-- Детали задачи будут добавлены через JavaScript -->
+            </div>
+
+            <div class="mt-4">
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editTaskModal">
+                    Редактировать
+                </button>
+                <button class="btn btn-danger" onclick="deleteTask()">
+                    Удалить
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно для редактирования задачи -->
+    <div class="modal fade" id="editTaskModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Редактировать задачу</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editTaskForm">
+                        <div class="mb-3">
+                            <label for="editTaskName" class="form-label">Название</label>
+                            <input type="text" class="form-control" id="editTaskName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editTaskDescription" class="form-label">Описание</label>
+                            <textarea class="form-control" id="editTaskDescription" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editTaskStatus" class="form-label">Статус</label>
+                            <select class="form-select" id="editTaskStatus">
+                                <option value="NEW">Новая</option>
+                                <option value="IN_PROGRESS">В работе</option>
+                                <option value="DONE">Завершена</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editTaskStartTime" class="form-label">Время начала</label>
+                            <input type="datetime-local" class="form-control" id="editTaskStartTime">
+                        </div>
+                        <div class="mb-3">
+                            <label for="editTaskDuration" class="form-label">Длительность (в минутах)</label>
+                            <input type="number" class="form-control" id="editTaskDuration" min="0">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="button" class="btn btn-primary" id="saveEditBtn">Сохранить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentTask = null;
+
+        // Функция для загрузки деталей задачи
+        async function loadTaskDetail() {
+            const taskId = window.location.pathname.split('/').pop();
+            try {
+                const response = await fetch(`/tasks/${taskId}`);
+                if (!response.ok) {
+                    throw new Error('Задача не найдена');
+                }
+                currentTask = await response.json();
+                displayTaskDetail(currentTask);
+            } catch (error) {
+                console.error('Ошибка при загрузке задачи:', error);
+                document.getElementById('taskDetail').innerHTML = `
+                    <div class="alert alert-danger">
+                        Ошибка при загрузке задачи: ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        // Функция для отображения деталей задачи
+        function displayTaskDetail(task) {
+            const statusClass = {
+                'NEW': 'bg-secondary',
+                'IN_PROGRESS': 'bg-primary',
+                'DONE': 'bg-success'
+            }[task.status] || 'bg-secondary';
+
+            const startTime = task.startTime ? new Date(task.startTime).toLocaleString() : 'Не указано';
+            const duration = task.duration ? `${task.duration} минут` : 'Не указано';
+            const endTime = task.endTime ? new Date(task.endTime).toLocaleString() : 'Не указано';
+
+            document.getElementById('taskDetail').innerHTML = `
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <h2 class="card-title">${task.name}</h2>
+                            <span class="badge ${statusClass} status-badge">${task.status}</span>
+                        </div>
+                        <p class="card-text">${task.description || 'Нет описания'}</p>
+                        <div class="task-time">
+                            <h5>Временные параметры:</h5>
+                            <p><strong>Начало:</strong> ${startTime}</p>
+                            <p><strong>Длительность:</strong> ${duration}</p>
+                            <p><strong>Окончание:</strong> ${endTime}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Заполняем форму редактирования
+            document.getElementById('editTaskName').value = task.name;
+            document.getElementById('editTaskDescription').value = task.description || '';
+            document.getElementById('editTaskStatus').value = task.status;
+            document.getElementById('editTaskStartTime').value = task.startTime ? 
+                new Date(task.startTime).toISOString().slice(0, 16) : '';
+            document.getElementById('editTaskDuration').value = task.duration || '';
+        }
+
+        // Функция для удаления задачи
+        async function deleteTask() {
+            if (!currentTask) return;
+            
+            if (confirm('Вы уверены, что хотите удалить эту задачу?')) {
+                try {
+                    const response = await fetch(`/tasks/${currentTask.id}`, {
+                        method: 'DELETE'
+                    });
+                    
+                    if (response.ok) {
+                        window.location.href = '/tasks';
+                    } else {
+                        throw new Error('Ошибка при удалении задачи');
+                    }
+                } catch (error) {
+                    console.error('Ошибка при удалении задачи:', error);
+                    alert('Ошибка при удалении задачи');
+                }
+            }
+        }
+
+        // Обработчик сохранения изменений
+        document.getElementById('saveEditBtn').addEventListener('click', async () => {
+            if (!currentTask) return;
+
+            const taskData = {
+                ...currentTask,
+                name: document.getElementById('editTaskName').value,
+                description: document.getElementById('editTaskDescription').value,
+                status: document.getElementById('editTaskStatus').value,
+                startTime: document.getElementById('editTaskStartTime').value,
+                duration: parseInt(document.getElementById('editTaskDuration').value) || 0
+            };
+
+            try {
+                const response = await fetch(`/tasks/${currentTask.id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(taskData)
+                });
+
+                if (response.ok) {
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('editTaskModal'));
+                    modal.hide();
+                    loadTaskDetail();
+                } else {
+                    const error = await response.json();
+                    alert(error.error || 'Ошибка при обновлении задачи');
+                }
+            } catch (error) {
+                console.error('Ошибка при обновлении задачи:', error);
+                alert('Ошибка при обновлении задачи');
+            }
+        });
+
+        // Загружаем детали задачи при загрузке страницы
+        document.addEventListener('DOMContentLoaded', loadTaskDetail);
+    </script>
+</body>
+</html> 

@@ -1,0 +1,141 @@
+/* Общие стили */
+body {
+    background-color: #f8f9fa;
+    padding-top: 20px;
+}
+
+.container {
+    max-width: 1200px;
+}
+
+/* Навигация */
+.nav-tabs {
+    margin-bottom: 20px;
+}
+
+/* Карточки задач */
+.task-card {
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.task-card .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #fff;
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+}
+
+.task-card .card-title {
+    margin: 0;
+    font-size: 1.1rem;
+    color: #333;
+}
+
+.task-card .card-body {
+    padding: 15px;
+}
+
+.task-card .card-text {
+    color: #666;
+    margin-bottom: 10px;
+}
+
+/* Подзадачи */
+.subtask-list {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+}
+
+.subtask-list .task-card {
+    margin-bottom: 10px;
+}
+
+.subtask-list .card-header {
+    background-color: #f8f9fa;
+}
+
+/* История */
+.history-item {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.history-item:last-child {
+    border-bottom: none;
+}
+
+.history-item h6 {
+    margin: 0;
+    color: #333;
+}
+
+.task-time {
+    font-size: 0.9rem;
+    color: #666;
+    margin-top: 5px;
+}
+
+/* Формы */
+.modal-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.modal-footer {
+    background-color: #f8f9fa;
+    border-top: 1px solid #dee2e6;
+}
+
+.form-label {
+    font-weight: 500;
+    color: #495057;
+}
+
+/* Кнопки */
+.btn-primary {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.btn-primary:hover {
+    background-color: #0b5ed7;
+    border-color: #0a58ca;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+.btn-danger:hover {
+    background-color: #bb2d3b;
+    border-color: #b02a37;
+}
+
+/* Статусы задач */
+.task-status {
+    width: auto;
+    display: inline-block;
+    margin-right: 10px;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .task-card .card-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .task-card .card-header > div {
+        margin-top: 10px;
+        width: 100%;
+    }
+
+    .task-status {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+} 
