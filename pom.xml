@@ -62,6 +62,14 @@
             <scope>runtime</scope>
         </dependency>
 
+        <!-- HikariCP для пула соединений -->
+        <dependency>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP</artifactId>
+            <version>5.1.0</version>
+            <scope>compile</scope>
+        </dependency>
+
         <!-- Javalin for HTTP server -->
         <dependency>
             <groupId>io.javalin</groupId>
