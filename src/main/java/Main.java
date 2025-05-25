@@ -1,44 +1,37 @@
-import tracker.controllers.*;
-import tracker.model.*;
-import tracker.serverHandlers.HttpServer;
+import tracker.controllers.DatabaseTaskManager;
+import tracker.dao.DatabaseInitializer;
+import tracker.server.HttpTaskServer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Main {
-    private static final int PORT = 8080;
+    private static final Logger logger = LoggerFactory.getLogger(Main.class);
 
     public static void main(String[] args) {
-        TaskManager taskManager = Managers.getDefault();
-        HistoryManager historyManager = Managers.getDefaultHistory();
-        taskManager.setHistoryManager(historyManager);
-        historyManager.setTaskManager(taskManager);
-
-        // Initialize and start HTTP server
-        HttpServer server = new HttpServer(taskManager);
-        server.start(PORT);
-        
-        System.out.println("HTTP Server started on port " + PORT);
-        System.out.println("Available endpoints:");
-        System.out.println("  GET    /tasks - Get all tasks");
-        System.out.println("  GET    /tasks/{id} - Get task by ID");
-        System.out.println("  POST   /tasks - Create new task");
-        System.out.println("  PUT    /tasks/{id} - Update task");
-        System.out.println("  DELETE /tasks/{id} - Delete task");
-        System.out.println("  DELETE /tasks - Delete all tasks");
-        System.out.println();
-        System.out.println("  GET    /epics - Get all epics");
-        System.out.println("  GET    /epics/{id} - Get epic by ID");
-        System.out.println("  POST   /epics - Create new epic");
-        System.out.println("  PUT    /epics/{id} - Update epic");
-        System.out.println("  DELETE /epics/{id} - Delete epic");
-        System.out.println("  DELETE /epics - Delete all epics");
-        System.out.println();
-        System.out.println("  GET    /subtasks - Get all subtasks");
-        System.out.println("  GET    /subtasks/{id} - Get subtask by ID");
-        System.out.println("  POST   /subtasks - Create new subtask");
-        System.out.println("  PUT    /subtasks/{id} - Update subtask");
-        System.out.println("  DELETE /subtasks/{id} - Delete subtask");
-        System.out.println("  DELETE /subtasks - Delete all subtasks");
-        System.out.println();
-        System.out.println("  GET    /epics/{id}/subtasks - Get all subtasks for epic");
-        System.out.println("  GET    /history - Get task history");
+        try {
+            // Инициализация базы данных
+            DatabaseInitializer.initialize();
+            
+            // Создание менеджера задач
+            DatabaseTaskManager taskManager = new DatabaseTaskManager();
+            
+            // Запуск HTTP сервера
+            HttpTaskServer server = new HttpTaskServer(taskManager);
+            server.start();
+            
+            logger.info("Server started at http://localhost:8080");
+            
+            // Добавление обработчика для корректного завершения работы
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                logger.info("Shutting down server...");
+                server.stop();
+                DatabaseInitializer.close();
+                logger.info("Server stopped");
+            }));
+            
+        } catch (Exception e) {
+            logger.error("Failed to start server", e);
+            System.exit(1);
+        }
     }
 }

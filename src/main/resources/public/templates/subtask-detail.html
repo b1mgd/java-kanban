@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Детали подзадачи</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .subtask-detail {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .status-badge {
+            font-size: 1rem;
+            padding: 0.5rem 1rem;
+        }
+        .subtask-time {
+            font-size: 1.1rem;
+            color: #666;
+        }
+        .epic-link {
+            font-size: 1.1rem;
+            color: #0d6efd;
+            text-decoration: none;
+        }
+        .epic-link:hover {
+            text-decoration: underline;
+        }
+        .description-box {
+            background-color: #f8f9fa;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">Менеджер задач</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/tasks">Задачи</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/epics">Эпики</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/subtasks">Подзадачи</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/history">История</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/prioritized">Приоритетные</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="subtask-detail">
+            <button class="btn btn-outline-secondary mb-4" onclick="history.back()">
+                ← Назад
+            </button>
+
+            <div id="subtaskContent">
+                <!-- Содержимое будет добавлено через JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно для редактирования подзадачи -->
+    <div class="modal fade" id="editSubtaskModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Редактировать подзадачу</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editSubtaskForm">
+                        <div class="mb-3">
+                            <label for="editSubtaskName" class="form-label">Название</label>
+                            <input type="text" class="form-control" id="editSubtaskName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editSubtaskDescription" class="form-label">Описание</label>
+                            <textarea class="form-control" id="editSubtaskDescription" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editSubtaskStatus" class="form-label">Статус</label>
+                            <select class="form-select" id="editSubtaskStatus" required>
+                                <option value="NEW">Новая</option>
+                                <option value="IN_PROGRESS">В работе</option>
+                                <option value="DONE">Завершена</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editSubtaskStartTime" class="form-label">Время начала</label>
+                            <input type="datetime-local" class="form-control" id="editSubtaskStartTime">
+                        </div>
+                        <div class="mb-3">
+                            <label for="editSubtaskDuration" class="form-label">Длительность (в минутах)</label>
+                            <input type="number" class="form-control" id="editSubtaskDuration" min="0">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="button" class="btn btn-primary" id="saveEditBtn">Сохранить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentSubtaskId = null;
+        let currentEpicId = null;
+
+        // Функция для загрузки данных подзадачи
+        async function loadSubtaskDetails() {
+            const subtaskId = window.location.pathname.split('/').pop();
+            currentSubtaskId = subtaskId;
+
+            try {
+                console.log('Загрузка подзадачи:', subtaskId);
+                const response = await fetch(`/subtasks/${subtaskId}`, {
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+
+                console.log('Статус ответа:', response.status);
+                const contentType = response.headers.get('content-type');
+                console.log('Content-Type:', contentType);
+
+                if (!response.ok) {
+                    let errorMessage;
+                    if (contentType && contentType.includes('application/json')) {
+                        const errorData = await response.json();
+                        errorMessage = errorData.error || 'Подзадача не найдена';
+                    } else {
+                        errorMessage = `Ошибка сервера: ${response.status}`;
+                    }
+                    throw new Error(errorMessage);
+                }
+
+                if (!contentType || !contentType.includes('application/json')) {
+                    throw new Error('Некорректный формат ответа от сервера');
+                }
+
+                const subtask = await response.json();
+                console.log('Получена подзадача:', subtask);
+
+                if (!subtask || !subtask.id) {
+                    throw new Error('Некорректные данные подзадачи');
+                }
+
+                currentEpicId = subtask.epicId;
+
+                // Загружаем информацию об эпике
+                console.log('Загрузка эпика:', subtask.epicId);
+                const epicResponse = await fetch(`/epics/${subtask.epicId}`, {
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+
+                if (!epicResponse.ok) {
+                    throw new Error('Не удалось загрузить информацию об эпике');
+                }
+
+                const epic = await epicResponse.json();
+                console.log('Получен эпик:', epic);
+
+                displaySubtaskDetails(subtask, epic);
+            } catch (error) {
+                console.error('Ошибка при загрузке данных подзадачи:', error);
+                document.getElementById('subtaskContent').innerHTML = `
+                    <div class="alert alert-danger">
+                        <h4 class="alert-heading">Ошибка!</h4>
+                        <p>${error.message}</p>
+                        <hr>
+                        <p class="mb-0">
+                            <a href="/subtasks" class="btn btn-outline-danger">Вернуться к списку подзадач</a>
+                        </p>
+                    </div>
+                `;
+            }
+        }
+
+        // Функция для отображения деталей подзадачи
+        function displaySubtaskDetails(subtask, epic) {
+            const statusClass = {
+                'NEW': 'bg-secondary',
+                'IN_PROGRESS': 'bg-primary',
+                'DONE': 'bg-success'
+            }[subtask.status] || 'bg-secondary';
+
+            const startTime = subtask.startTime ? new Date(subtask.startTime).toLocaleString() : 'Не указано';
+            const duration = subtask.duration ? `${subtask.duration} минут` : 'Не указано';
+
+            document.getElementById('subtaskContent').innerHTML = `
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <h2 class="card-title">${subtask.name}</h2>
+                            <span class="badge ${statusClass} status-badge">${subtask.status}</span>
+                        </div>
+
+                        <div class="description-box">
+                            <h5>Описание:</h5>
+                            <p>${subtask.description || 'Нет описания'}</p>
+                        </div>
+
+                        <div class="subtask-time">
+                            <p><strong>Время начала:</strong> ${startTime}</p>
+                            <p><strong>Длительность:</strong> ${duration}</p>
+                        </div>
+
+                        <div class="mt-3">
+                            <a href="/epics/${epic.id}" class="epic-link">
+                                Эпик: ${epic.name}
+                            </a>
+                        </div>
+
+                        <div class="mt-4">
+                            <button class="btn btn-primary me-2" onclick="showEditModal(${JSON.stringify(subtask).replace(/"/g, '&quot;')})">
+                                Редактировать
+                            </button>
+                            <button class="btn btn-danger" onclick="deleteSubtask()">
+                                Удалить
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Функция для отображения модального окна редактирования
+        function showEditModal(subtask) {
+            document.getElementById('editSubtaskName').value = subtask.name;
+            document.getElementById('editSubtaskDescription').value = subtask.description || '';
+            document.getElementById('editSubtaskStatus').value = subtask.status;
+            document.getElementById('editSubtaskStartTime').value = subtask.startTime ? subtask.startTime.slice(0, 16) : '';
+            document.getElementById('editSubtaskDuration').value = subtask.duration || '';
+
+            const modal = new bootstrap.Modal(document.getElementById('editSubtaskModal'));
+            modal.show();
+        }
+
+        // Функция для сохранения изменений
+        document.getElementById('saveEditBtn').addEventListener('click', async () => {
+            const subtaskData = {
+                name: document.getElementById('editSubtaskName').value,
+                description: document.getElementById('editSubtaskDescription').value,
+                status: document.getElementById('editSubtaskStatus').value,
+                epicId: currentEpicId,
+                startTime: document.getElementById('editSubtaskStartTime').value,
+                duration: parseInt(document.getElementById('editSubtaskDuration').value) || 0
+            };
+
+            try {
+                const response = await fetch(`/subtasks/${currentSubtaskId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(subtaskData)
+                });
+
+                if (response.ok) {
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('editSubtaskModal'));
+                    modal.hide();
+                    loadSubtaskDetails();
+                } else {
+                    const error = await response.json();
+                    alert(error.error || 'Ошибка при обновлении подзадачи');
+                }
+            } catch (error) {
+                console.error('Ошибка при обновлении подзадачи:', error);
+                alert('Ошибка при обновлении подзадачи');
+            }
+        });
+
+        // Функция для удаления подзадачи
+        async function deleteSubtask() {
+            if (confirm('Вы уверены, что хотите удалить эту подзадачу?')) {
+                try {
+                    const response = await fetch(`/subtasks/${currentSubtaskId}`, {
+                        method: 'DELETE'
+                    });
+
+                    if (response.ok) {
+                        window.location.href = '/subtasks';
+                    } else {
+                        const error = await response.json();
+                        alert(error.error || 'Ошибка при удалении подзадачи');
+                    }
+                } catch (error) {
+                    console.error('Ошибка при удалении подзадачи:', error);
+                    alert('Ошибка при удалении подзадачи');
+                }
+            }
+        }
+
+        // Загружаем данные при загрузке страницы
+        document.addEventListener('DOMContentLoaded', loadSubtaskDetails);
+    </script>
+</body>
+</html> 

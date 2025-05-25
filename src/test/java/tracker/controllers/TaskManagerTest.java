@@ -2,6 +2,7 @@ package tracker.controllers;
 
 import tracker.model.*;
 import org.junit.jupiter.api.*;
+import tracker.dao.DatabaseInitializer;
 
 import java.util.List;
 
@@ -21,6 +22,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     @BeforeEach
     void setUp() {
+        DatabaseInitializer.initialize();
         taskManager = createTaskManager();
         historyManager = Managers.getDefaultHistory();
 
@@ -40,10 +42,11 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
         epic = new Epic("Организация переезда", "Переезд в новую квартиру");
         taskManager.createEpic(epic);
+        int epicId = epic.getId();
 
-        subtask1 = new Subtask("Упаковка вещей", "Упаковать вещи в коробки", epic.getId(),
+        subtask1 = new Subtask("Упаковка вещей", "Упаковать вещи в коробки", epicId,
                 60L, "01.02.2025 18:00");
-        subtask2 = new Subtask("Заказ транспорта", "Заказать грузовое такси", epic.getId(),
+        subtask2 = new Subtask("Заказ транспорта", "Заказать грузовое такси", epicId,
                 60L, "01.02.2025 19:00");
         taskManager.createSubtask(subtask1);
         taskManager.createSubtask(subtask2);

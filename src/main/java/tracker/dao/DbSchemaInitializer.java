@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 
 public class DbSchemaInitializer {
     public static void initSchema() {
-        try (Connection conn = DatabaseManager.getConnection();
+        try (Connection conn = DatabaseInitializer.getConnection();
              Statement stmt = conn.createStatement()) {
             String sql = readSchemaSql();
             for (String query : sql.split(";")) {

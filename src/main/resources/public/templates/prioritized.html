@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Приоритетные задачи</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .task-card {
+            margin-bottom: 1rem;
+            transition: transform 0.2s;
+        }
+        .task-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .status-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+        .task-time {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        .task-type {
+            font-size: 0.8rem;
+            color: #6c757d;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .empty-tasks {
+            text-align: center;
+            padding: 3rem;
+            color: #6c757d;
+        }
+        .empty-tasks i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            color: #dee2e6;
+        }
+        .timeline {
+            position: relative;
+            padding-left: 2rem;
+        }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background-color: #dee2e6;
+        }
+        .timeline-item {
+            position: relative;
+            margin-bottom: 2rem;
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -2.5rem;
+            top: 0.5rem;
+            width: 1rem;
+            height: 1rem;
+            border-radius: 50%;
+            background-color: #0d6efd;
+            border: 2px solid #fff;
+        }
+        .timeline-date {
+            font-size: 0.8rem;
+            color: #6c757d;
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">Менеджер задач</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/tasks">Задачи</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/epics">Эпики</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/subtasks">Подзадачи</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/history">История</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/prioritized">Приоритетные</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <h1 class="mb-4">Приоритетные задачи</h1>
+
+        <div class="row">
+            <div class="col-md-8">
+                <div id="prioritizedList">
+                    <!-- Приоритетные задачи будут добавлены через JavaScript -->
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Информация</h5>
+                        <p class="card-text">
+                            Здесь отображаются задачи, отсортированные по приоритету (времени начала).
+                            Задачи без времени начала отображаются в конце списка.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Функция для загрузки приоритетных задач
+        async function loadPrioritizedTasks() {
+            try {
+                const response = await fetch('/prioritized', {
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const tasks = await response.json();
+                const prioritizedList = document.getElementById('prioritizedList');
+
+                if (tasks.length === 0) {
+                    prioritizedList.innerHTML = `
+                        <div class="empty-tasks">
+                            <i class="bi bi-calendar-check"></i>
+                            <h3>Нет приоритетных задач</h3>
+                            <p>Здесь будут отображаться задачи, отсортированные по времени начала</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Группируем задачи по дате начала
+                const tasksByDate = groupTasksByDate(tasks);
+                prioritizedList.innerHTML = '';
+
+                // Создаем временную шкалу
+                const timeline = document.createElement('div');
+                timeline.className = 'timeline';
+
+                for (const [date, dateTasks] of Object.entries(tasksByDate)) {
+                    const dateGroup = document.createElement('div');
+                    dateGroup.className = 'timeline-item';
+                    
+                    const dateHeader = document.createElement('div');
+                    dateHeader.className = 'timeline-date';
+                    dateHeader.textContent = formatDate(date);
+                    dateGroup.appendChild(dateHeader);
+
+                    for (const task of dateTasks) {
+                        const taskCard = createTaskCard(task);
+                        dateGroup.appendChild(taskCard);
+                    }
+
+                    timeline.appendChild(dateGroup);
+                }
+
+                prioritizedList.appendChild(timeline);
+            } catch (error) {
+                console.error('Ошибка при загрузке приоритетных задач:', error);
+                document.getElementById('prioritizedList').innerHTML = `
+                    <div class="alert alert-danger">
+                        Ошибка при загрузке приоритетных задач: ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        // Функция для группировки задач по дате
+        function groupTasksByDate(tasks) {
+            const groups = {};
+            
+            tasks.forEach(task => {
+                if (!task.startTime) {
+                    if (!groups['no-date']) {
+                        groups['no-date'] = [];
+                    }
+                    groups['no-date'].push(task);
+                    return;
+                }
+
+                const date = task.startTime.split('T')[0];
+                if (!groups[date]) {
+                    groups[date] = [];
+                }
+                groups[date].push(task);
+            });
+
+            // Сортируем даты
+            const sortedGroups = {};
+            Object.keys(groups)
+                .sort((a, b) => {
+                    if (a === 'no-date') return 1;
+                    if (b === 'no-date') return -1;
+                    return a.localeCompare(b);
+                })
+                .forEach(date => {
+                    sortedGroups[date] = groups[date];
+                });
+
+            return sortedGroups;
+        }
+
+        // Функция для форматирования даты
+        function formatDate(dateStr) {
+            if (dateStr === 'no-date') {
+                return 'Без даты начала';
+            }
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('ru-RU', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+        }
+
+        // Функция для создания карточки задачи
+        function createTaskCard(task) {
+            const card = document.createElement('div');
+            card.className = 'card task-card mb-3';
+            
+            const statusClass = {
+                'NEW': 'bg-secondary',
+                'IN_PROGRESS': 'bg-primary',
+                'DONE': 'bg-success'
+            }[task.status] || 'bg-secondary';
+
+            const startTime = task.startTime ? new Date(task.startTime).toLocaleString() : 'Не указано';
+            const duration = task.duration ? `${task.duration} минут` : 'Не указано';
+            const taskType = task.epicId ? 'Подзадача' : 'Задача';
+            const detailUrl = task.epicId ? `/subtasks/${task.id}` : `/tasks/${task.id}`;
+
+            card.innerHTML = `
+                <div class="card-body">
+                    <span class="badge ${statusClass} status-badge">${task.status}</span>
+                    <span class="task-type">${taskType}</span>
+                    <h5 class="card-title mt-2">${task.name}</h5>
+                    <p class="card-text">${task.description || 'Нет описания'}</p>
+                    <div class="task-time">
+                        <p class="mb-1"><strong>Начало:</strong> ${startTime}</p>
+                        <p class="mb-1"><strong>Длительность:</strong> ${duration}</p>
+                    </div>
+                    <div class="mt-3">
+                        <a href="${detailUrl}" class="btn btn-outline-primary btn-sm">Подробнее</a>
+                    </div>
+                </div>
+            `;
+            
+            return card;
+        }
+
+        // Загружаем приоритетные задачи при загрузке страницы
+        document.addEventListener('DOMContentLoaded', loadPrioritizedTasks);
+    </script>
+</body>
+</html> 

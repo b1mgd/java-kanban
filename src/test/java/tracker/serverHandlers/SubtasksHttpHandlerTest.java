@@ -94,12 +94,13 @@ public class SubtasksHttpHandlerTest extends BaseHttpHandlerTest {
         try {
             response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
             assertEquals(HttpURLConnection.HTTP_NOT_FOUND, response.statusCode());
-            assertEquals(response.body(), "Задача с указанным ID не найдена");
+            
+            ErrorResponse errorResponse = GSON.fromJson(response.body(), ErrorResponse.class);
+            assertEquals("Подзадача не найдена", errorResponse.getError());
 
         } catch (InterruptedException | IOException e) {
             System.out.println(e.getMessage());
         }
-
     }
 
     @Test
@@ -194,5 +195,13 @@ public class SubtasksHttpHandlerTest extends BaseHttpHandlerTest {
         tasks = taskManager.getAllTasks();
 
         assertTrue(tasks.isEmpty());
+    }
+
+    private static class ErrorResponse {
+        private String error;
+
+        public String getError() {
+            return error;
+        }
     }
 }

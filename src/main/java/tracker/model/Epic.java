@@ -10,6 +10,8 @@ public class Epic extends Task {
     public Epic(String name, String description) {
         super(name, description, 0L, null);
         this.subTaskIds = new HashSet<>();
+        this.duration = java.time.Duration.ofMinutes(0L);
+        this.status = TaskStatus.NEW;
     }
 
     public void setEndTime(LocalDateTime endTime) {
@@ -74,7 +76,7 @@ public class Epic extends Task {
                 ", description='" + description + '\'' +
                 ", id=" + id +
                 ", status=" + status +
-                ", duration=" + duration.toMinutes() +
+                ", duration=" + (duration != null ? duration.toMinutes() : 0) +
                 ", startTime=" + (startTime == null ? "null" : startTime.format(DATE_TIME_FORMATTER)) +
                 ", endTime=" + (endTime == null ? "null" : endTime.format(DATE_TIME_FORMATTER)) +
                 ", subTaskIds=" + subTaskIds +
